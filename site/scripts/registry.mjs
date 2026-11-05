@@ -1,5 +1,5 @@
 // The plugin registry, before the site is built: its generated/ folder
-// (index.toml, plugins.json, media/) from github.com/rick-dev-creator/mazapan-plugins,
+// (index.toml, plugins.json, media/) from github.com/singularengine/mazapan-plugins,
 // or from $REGISTRY_DIR (a checkout of it), into public/plugins/ (served as
 // they are: Mazapan reads mazapan.dev/plugins/index.toml) and src/data/ (the
 // gallery's pages are made from it). No registry, no build: a site without
@@ -11,7 +11,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const site = join(dirname(fileURLToPath(import.meta.url)), "..");
-const repo = "https://github.com/rick-dev-creator/mazapan-plugins";
+const repo = "https://github.com/singularengine/mazapan-plugins";
 
 let dir = process.env.REGISTRY_DIR;
 let tmp;

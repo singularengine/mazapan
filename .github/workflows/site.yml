@@ -1,6 +1,8 @@
-# mazapan.dev: the site in site/ (Astro), built and put on GitHub Pages when
-# main changes it, and every hour for the plugin registry (its catalog,
-# mazapan.dev/plugins/index.toml, and the gallery come from it).
+# mazapan.dev: the site in site/ (Astro), built and put on the Singular Engine
+# landings VPS (Caddy) when main changes it, and every hour for the plugin
+# registry (its catalog, mazapan.dev/plugins/index.toml, and the gallery come
+# from it). Each deploy goes to a new folder and the site switches to it at
+# once, so a half-uploaded site is never served; the last three are kept.
 name: Site
 
 on:
@@ -13,28 +15,45 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: site
   cancel-in-progress: false
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: withastro/action@v6
-        with:
-          path: site
-
   deploy:
-    needs: build
     runs-on: ubuntu-latest
     environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      name: mazapan.dev
+      url: https://mazapan.dev
     steps:
-      - id: deployment
-        uses: actions/deploy-pages@v5
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Build
+        working-directory: site
+        run: |
+          npm ci
+          npm run build
+
+      - name: Deploy
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519 && chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          site=mazapan.dev
+          release="/srv/sites/.$site-$(date -u +%Y%m%d%H%M%S)"
+          ssh "$HOST" "mkdir -p '$release'"
+          tar -C site/dist --exclude=CNAME -czf - . | ssh "$HOST" "tar --no-same-owner -C '$release' -xzf -"
+          ssh "$HOST" "set -e
+            ln -sfn '$release' /srv/sites/$site.tmp && mv -T /srv/sites/$site.tmp /srv/sites/$site
+            ls -1dt /srv/sites/.$site-* | tail -n +4 | xargs -r rm -rf"

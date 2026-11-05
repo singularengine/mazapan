@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Puts the package repository pkg/release made (out/repo/<channel>/x86_64)
 # where installed systems read it: https://repo.mazapan.dev, GitHub Pages
-# of rick-dev-creator/mazapan-repo. What's there is replaced by out/repo
+# of singularengine/mazapan-repo. What's there is replaced by out/repo
 # whole (pkg/release keeps every version: nothing a system needs is lost).
 #
 #   pkg/publish-repo
@@ -11,7 +11,7 @@ set -euo pipefail
 
 repo="$(cd "$(dirname "$0")/.." && pwd)"
 out="${MAZAPAN_RELEASE_OUT:-$repo/out/repo}"
-pages="${MAZAPAN_REPO_PAGES:-rick-dev-creator/mazapan-repo}"
+pages="${MAZAPAN_REPO_PAGES:-singularengine/mazapan-repo}"
 log() { printf '\e[1;35m[publish-repo]\e[0m %s\n' "$*"; }
 die() { printf '\e[1;31m[publish-repo]\e[0m %s\n' "$*" >&2; exit 1; }
 
