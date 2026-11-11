@@ -19,8 +19,8 @@
   <img src="https://img.shields.io/badge/Hyprland-58E1FF?style=for-the-badge&logo=hyprland&logoColor=101418&labelColor=101418" alt="Hyprland">
   <img src="https://img.shields.io/badge/Quickshell-8A6FDF?style=for-the-badge&labelColor=101418" alt="Quickshell">
   <img src="https://img.shields.io/badge/.NET_10_AOT-512BD4?style=for-the-badge&logo=dotnet&logoColor=white&labelColor=101418" alt=".NET 10 AOT">
-  <img src="https://img.shields.io/github/license/rick-dev-creator/mazapan?style=for-the-badge&labelColor=101418&color=C9A15B" alt="MIT">
-  <a href="https://github.com/rick-dev-creator/mazapan/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/rick-dev-creator/mazapan/ci.yml?branch=main&style=for-the-badge&labelColor=101418&label=CI" alt="CI"></a>
+  <img src="https://img.shields.io/github/license/singularengine/mazapan?style=for-the-badge&labelColor=101418&color=C9A15B" alt="MIT">
+  <a href="https://github.com/singularengine/mazapan/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/singularengine/mazapan/ci.yml?branch=main&style=for-the-badge&labelColor=101418&label=CI" alt="CI"></a>
 </p>
 
 <p align="center">
@@ -310,7 +310,7 @@ TOML, JSON, CSS, shell…), filled from the theme and your settings.
   `plugins dev` (applied again on every save) and `plugins check`; `plugins
   fork` copies a built-in one to change it.
 - **The community's, in their own repositories**: the
-  [plugin registry](https://github.com/rick-dev-creator/mazapan-plugins)
+  [plugin registry](https://github.com/singularengine/mazapan-plugins)
   lists them by tag and commit, and [mazapan.dev/plugins](https://mazapan.dev/plugins/)
   shows them (Markets, Pomodoro…). Yours goes in with a pull request; new
   versions are picked up from your tags: [publishing a plugin](docs/publishing-plugins.md),

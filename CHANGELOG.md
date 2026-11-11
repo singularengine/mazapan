@@ -4,6 +4,17 @@ What changed in each release, newest first. The updates panel shows what's
 new since the version a system has. Changes go under "Unreleased" until a
 release (a tag `vX.Y.Z`) names them.
 
+## 0.5.2 (2026-11-11)
+
+- Mazapan lives at [singularengine/mazapan](https://github.com/singularengine/mazapan)
+  now, with its plugin registry
+  ([singularengine/mazapan-plugins](https://github.com/singularengine/mazapan-plugins))
+  and its package repository. `mazapan plugins new` points to the guide
+  there, the copy of the registry that ships comes from there, and bug
+  reports, security reports and mazapan.dev's links go there. The old
+  addresses still lead to the new ones; updates come from
+  repo.mazapan.dev as before.
+
 ## 0.5.1 (2026-10-23)
 
 - A new release key: Mazapan's packages and ISOs are signed by

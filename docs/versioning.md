@@ -56,7 +56,7 @@ The ISO is a way in, dated by the Arch it carries:
 
 Installed systems update Mazapan's own packages from
 `https://repo.mazapan.dev/$channel/$arch` (GitHub Pages: the repository
-rick-dev-creator/mazapan-repo), Arch's from Arch. `pkg/repository.toml`
+singularengine/mazapan-repo), Arch's from Arch. `pkg/repository.toml`
 names it; it stays empty until that server has a signed database, since
 pacman fails on a repository it can't read (an install from the ISO too).
 The first release sets it, in the same commit that's tagged.

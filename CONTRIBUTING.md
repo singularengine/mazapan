@@ -11,7 +11,7 @@ their language. Everyone taking part follows the
 
 ## Ways to help
 
-- **Try it and say what broke**: a [bug report](https://github.com/rick-dev-creator/mazapan/issues/new?template=bug_report.yml),
+- **Try it and say what broke**: a [bug report](https://github.com/singularengine/mazapan/issues/new?template=bug_report.yml),
   with `mazapan version` and, for hardware, `mazapan hardware`.
 - **A machine it doesn't handle yet**: a hardware plugin (`[hardware]`),
   see [A plugin](#a-plugin).
