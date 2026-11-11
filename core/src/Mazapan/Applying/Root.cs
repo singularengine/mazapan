@@ -147,11 +147,14 @@ public static partial class AsRoot
         var want = packages.Distinct().Order(StringComparer.Ordinal).ToList();
         GuardPackages(want);
         if (want.Count == 0 || !File.Exists("/usr/bin/pacman")) return [];
-        var psi = new ProcessStartInfo("pacman") { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
+        var psi = new ProcessStartInfo("pacman") { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, RedirectStandardInput = true };
         psi.ArgumentList.Add("-T");
         psi.ArgumentList.Add("--");
         foreach (var w in want) psi.ArgumentList.Add(w);
         using var p = Process.Start(psi)!;
+        // Never the terminal: a repository signed by a key pacman doesn't
+        // know has it ask to import it, even for -T, and no one answers.
+        p.StandardInput.Close();
         var out_ = p.StandardOutput.ReadToEnd();
         p.StandardError.ReadToEnd();
         p.WaitForExit();
@@ -191,12 +194,13 @@ public static partial class AsRoot
 
     static string? Query(params string[] args)
     {
-        var psi = new ProcessStartInfo("pacman") { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
+        var psi = new ProcessStartInfo("pacman") { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, RedirectStandardInput = true };
         psi.Environment["LC_ALL"] = "C";
         foreach (var a in args) psi.ArgumentList.Add(a);
         try
         {
             using var p = Process.Start(psi)!;
+            p.StandardInput.Close(); // as Missing: a question takes its default
             var out_ = p.StandardOutput.ReadToEnd();
             p.StandardError.ReadToEnd();
             p.WaitForExit();
