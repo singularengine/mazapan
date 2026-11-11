@@ -17,6 +17,11 @@ release (a tag `vX.Y.Z`) names them.
   sudo pacman-key --add mazapan.gpg
   sudo pacman-key --lsign-key B999B535645B54C0B659ADBE8E5A7E2352C92A1B
   ```
+- `mazapan apply` (and the install, which runs it) could wait forever,
+  with nothing on the screen, when a repository is signed by a key
+  pacman doesn't know: pacman asked on the terminal whether to import it
+  while Mazapan only looked at which packages are missing. It isn't
+  asked now; the apply goes on, and the update says what's wrong.
 - Mazapan lives at [singularengine/mazapan](https://github.com/singularengine/mazapan)
   now, with its plugin registry
   ([singularengine/mazapan-plugins](https://github.com/singularengine/mazapan-plugins))
