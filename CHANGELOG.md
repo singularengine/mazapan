@@ -4,7 +4,339 @@ What changed in each release, newest first. The updates panel shows what's
 new since the version a system has. Changes go under "Unreleased" until a
 release (a tag `vX.Y.Z`) names them.
 
-## Unreleased
+## 0.5.2 (2026-11-11)
+
+- A new release key: Mazapan's packages and ISOs are signed by
+  `B999 B535 645B 54C0 B659 ADBE 8E5A 7E23 52C9 2A1B` from 0.5.2 on. The
+  one before it was lost, and with it the way to bring a new one in by
+  itself, so a system installed before 0.5.2 takes it once, by hand,
+  then updates as before:
+
+  ```sh
+  curl -fsSLO https://raw.githubusercontent.com/singularengine/mazapan/main/pkg/keys/mazapan.gpg
+  sudo pacman-key --add mazapan.gpg
+  sudo pacman-key --lsign-key B999B535645B54C0B659ADBE8E5A7E2352C92A1B
+  ```
+- `mazapan apply` (and the install, which runs it) could wait forever,
+  with nothing on the screen, when a repository is signed by a key
+  pacman doesn't know: pacman asked on the terminal whether to import it
+  while Mazapan only looked at which packages are missing. It isn't
+  asked now; the apply goes on, and the update says what's wrong.
+- The check that the shell is the session's polkit agent failed where
+  the locale isn't UTF-8 (the gate's session, a `mazapan doctor` run
+  over SSH): Quickshell 0.3.2 writes its warning about it to the same
+  output as the answer. The answer is read on its own line now.
+- Mazapan lives at [singularengine/mazapan](https://github.com/singularengine/mazapan)
+  now, with its plugin registry
+  ([singularengine/mazapan-plugins](https://github.com/singularengine/mazapan-plugins))
+  and its package repository. `mazapan plugins new` points to the guide
+  there, the copy of the registry that ships comes from there, and bug
+  reports, security reports and mazapan.dev's links go there. The old
+  addresses still lead to the new ones; updates come from
+  repo.mazapan.dev as before.
+
+## 0.5.1 (2026-10-23)
+
+- A new release key: Mazapan's packages and ISOs are signed by
+  `42FC 5905 D9D6 A8C1 585E 082B DF87 9369 652B 55DB` from 0.5.1 on. The
+  first one was lost, and with it the way to bring a new one in by
+  itself, so a system installed before 0.5.1 takes it once, by hand,
+  then updates as before:
+
+  ```sh
+  curl -fsSLO https://raw.githubusercontent.com/rick-dev-creator/mazapan/main/pkg/keys/mazapan.gpg
+  sudo pacman-key --add mazapan.gpg
+  sudo pacman-key --lsign-key 42FC5905D9D6A8C1585E082BDF879369652B55DB
+  ```
+- News, a new plugin in the registry
+  ([mazapan-news](https://github.com/rick-dev-creator/mazapan-news)): the
+  news from where you're from and where you live, in the languages you
+  read, by country, section and your own topics, in a quiet icon in the
+  bar and a panel made for reading. `mazapan plugins add news`, or the
+  Plugins panel. The copy of the registry that ships lists it.
+- The ASUS Zenbook S 16 (UM5606) froze on its first frame, from the
+  ISO's live session on: a black screen with the cursor in the middle,
+  the keyboard seemingly dead. Panel Self Refresh, which its panel hangs
+  in on Linux 7, is turned off: on the ISO in every entry of its boot
+  menu, so it starts without anything to pick, and on the installed
+  system by a hardware fix the installer turns on (`hw-amd-strix-psr`),
+  for every laptop on AMD Ryzen AI 300 (Strix and Krackan Point), whose
+  panels the same bug can hang.
+- The installer's disk screen could do nothing at all on Continue (or
+  Enter), with no word of why, until it was closed and opened again: no
+  disk was picked, or the disks it found when it opened weren't there.
+  Now it looks for the disks again on coming to that screen, and says
+  why it doesn't move on: no disk, a disk too small, or none picked yet.
+
+## 0.5.0 (2026-10-08)
+
+- Mazapan, the agent: `SUPER + SHIFT + A`, `? …` in the palette (or a
+  question that starts with "¿"), or "ask by voice" opens a card with
+  Mazapan, the icon's mazapan as a pixel-art character whose gestures say
+  what it's doing. Ask it for a change ("put a dark theme with a green
+  accent") and it makes it through Mazapan, after Mazapan's own card shows
+  you the diff and you allow it; Undo takes it back. Ask why something
+  failed and it reads Mazapan's logs, telling an old error from a new one.
+  The conversation goes on in the card, by typing or by voice, scrolls when
+  it's long, survives the reload a theme causes, and copies whole.
+- It searches the web, and opens pages on the sites you name; a
+  conversation that did changes nothing more (a page can hold words written
+  to steer an agent), and it says so. Images in its answers show as a card
+  and load only when you click them, then big on another click.
+- Only your own words act: about a capture, a notification or the selected
+  text it only answers. Settings for who answers, which Claude account,
+  paid with the subscription or an API key, the model, and the character
+  itself. Account emails are shown masked (ri***v@gmail.com) wherever an
+  agent's account is named. Holding SUPER shows its keys under "AI agents";
+  "Ask an agent about this desktop" no longer opens a terminal.
+- Ports, a new plugin in the registry
+  ([mazapan-ports](https://github.com/rick-dev-creator/mazapan-ports)):
+  what's listening on your computer, by name: your servers with their
+  project and tool, containers (Podman's and Docker's, by name and Compose
+  project), your systemd sockets, the system's. Type a port to know if
+  it's free and the next one that is; stop what holds it, with what
+  restarts it; how far each one reaches, the firewall counted; a word,
+  and a card in the Control Center, when something of yours is open to
+  the network. `mazapan plugins add ports`, or the Plugins panel.
+
+## 0.4.4 (2026-10-08)
+
+- Dock, a new plugin in the registry
+  ([mazapan-dock](https://github.com/rick-dev-creator/mazapan-dock)): your
+  apps at the bottom of the screen, the ones you keep there and the ones
+  open, icons in the theme's colors, a mark for each window, the window
+  found wherever it is on the strip of columns, every window of an app
+  live to pick one, and minimize. `mazapan plugins add dock`, or the
+  Plugins panel.
+- Radio ([mazapan-radio](https://github.com/rick-dev-creator/mazapan-radio))
+  and Playback ([mazapan-playback](https://github.com/rick-dev-creator/mazapan-playback))
+  are in the registry too: live radio from all over the world, and what's
+  playing in Mazapan's own look. The copy of the registry that ships lists
+  all three.
+- A minimized window (docks for Hyprland put one on a special workspace,
+  `special:minimized`) picked in the palette, a notification or an agent's
+  card showed that hidden workspace instead of the window. Now it comes to
+  the workspace you're on, with the focus, and the palette says it's
+  minimized.
+
+## 0.4.3 (2026-10-07)
+
+- The installer couldn't be used by keyboard: only Enter, to move on.
+  Now each screen starts in its search or its list, ↑↓ move through
+  languages, keyboards, time zones, networks and disks, Space picks,
+  Enter picks or moves on, and Tab goes through the fields, switches and
+  buttons. Buttons and switches everywhere (panels, the Control Center)
+  take Tab too, Space or Enter a button and Space a switch, with a ring
+  where the keys are.
+
+## 0.4.2 (2026-10-07)
+
+- Now Playing, a new plugin in the registry
+  ([mazapan-now-playing](https://github.com/rick-dev-creator/mazapan-now-playing)):
+  what's playing wherever it plays (Spotify, YouTube in a browser, mpv…)
+  in the bar, the Control Center and a panel with the cover's colors,
+  every player, a bar to drag through the song and the sound drawn as it
+  plays. `mazapan plugins add now-playing`, or the Plugins panel.
+- The Control Center: a plugin can take the place of one of its parts by
+  giving its own the same name and a higher number
+  (`control/sections/31-media.qml` over `30-media.qml`). With the plugin
+  off, the original is back.
+- Three wrong passwords lock the account for 10 minutes (Arch's
+  faillock), and the lock screen and the login screen kept saying only
+  "wrong password", the right one too. Now they say the account is locked
+  and the minutes left. The lock screen has suspend, restart and shut down
+  at the bottom, as the login screen does (restart and shut down ask for
+  a second click).
+
+## 0.4.1 (2026-10-07)
+
+- After an update that wanted a restart (a new kernel), the Updates panel
+  and the bar kept asking for it after the restart too: they read the last
+  run's log again. Now a restart asked for before the computer last
+  started counts as done.
+
+## 0.4.0 (2026-10-07)
+
+- The plugin registry: plugins others make live in their own repositories,
+  and [mazapan-plugins](https://github.com/rick-dev-creator/mazapan-plugins)
+  lists them, each by its tag and the commit that was looked at. The
+  Plugins panel and `mazapan plugins add` read it from
+  mazapan.dev/plugins/index.toml (a copy ships for when it can't be
+  reached), install exactly that commit even if the tag moves, and follow
+  the registry's newer versions (the Updates panel says when there's one),
+  asking again for anything new they'd be able to do.
+- mazapan.dev/plugins: every plugin with its icon, screenshots, README and
+  what it can do, a page each, and a feed of what's new.
+- Markets and Pomodoro moved to their own repositories
+  ([mazapan-markets](https://github.com/rick-dev-creator/mazapan-markets),
+  [mazapan-pomodoro](https://github.com/rick-dev-creator/mazapan-pomodoro)),
+  listed in the registry. Where one was on, the next update installs it
+  from there, exactly as it was (its settings and history kept); until
+  then its files stay as they are.
+- plugin.toml says who made a plugin, where it lives and its license, and
+  how it looks (`[gallery]`: an icon, screenshots). `mazapan plugins
+  check` asks for them in a plugin to share, refuses a key a built-in
+  plugin uses, and says it all as JSON (`--json`).
+
+## 0.3.2 (2026-10-07)
+
+- Apps from their makers: their download is tried again too when the
+  network doesn't answer (four times, five seconds apart), not only the
+  question for their latest version: a home router's DNS that misses a
+  question now and then no longer leaves an app out.
+
+## 0.3.1 (2026-10-07)
+
+- Apps from their makers (Herdr, VS Code, JetBrains…): asked again for a
+  few seconds when the network doesn't answer, instead of left out at
+  once. The first login's apps start as soon as there's a connection, and
+  its DNS can take a moment more: they were left out then ("not
+  everything was installed").
+
+## 0.3.0 (2026-10-07)
+
+- Default apps: the terminal is one of them (Settings, Default apps):
+  SUPER + Enter, the palette's terminal apps, Plugins, Updates and a
+  crash's details open the one chosen (xdg-terminal-exec), not always
+  foot. Each kind offers every installed app that opens it, not only a
+  fixed list; and in Apps, an installed app that can be the default has
+  "Use as default …" beside it.
+- Share, like AirDrop: files to a phone or computer nearby over Bluetooth,
+  as bubbles with their progress; one not paired is paired right there,
+  its code confirmed in the panel. Files a phone sends here: the panel
+  opens to accept them, shows them arriving, and they go to Downloads
+  (ask, from paired devices without asking, or never). Pairing from the
+  phone: the Share switch in the Control Center makes this computer
+  visible for three minutes. A send button beside a paired phone in the
+  Bluetooth card; "Choose files…" in the panel and the Control Center.
+  Pairing a phone from the Bluetooth card now asks for its code too (it
+  had nobody to ask).
+
+## 0.2.1 (2026-10-06)
+
+- Plugins: changing a plugin's settings keeps the list where it was and the
+  plugin selected, instead of jumping back to it; quick changes in a row are
+  applied together, once, instead of one reload each.
+- Pomodoro: changing its settings doesn't reload the shell any more; the
+  timer, the panel and the bar follow them as they change.
+
+## 0.2.0 (2026-10-06)
+
+- A version is its number: `mazapan --version` says "mazapan 0.2.0", no name beside it.
+- Pomodoro, a community plugin: focus in sessions with breaks between them.
+  A ring that fills as the time goes, the time left and when it ends, the
+  sessions of each set, what you're working on; start, pause, skip, five
+  more minutes. Breaks start by themselves (or wait), and so can the next
+  session; a sound and a notice say when each phase ends, the notice
+  starting the next. Do Not Disturb while you focus. Today against your
+  daily goal, minutes focused, the streak of days and the week. In the bar
+  while a session is on, in the Control Center, the palette and SUPER +
+  ALT + P; every length and switch in its settings.
+- The palette: typing a place's name finds the place first ("wallpaper"
+  opens the wallpaper picker, before the actions that start with the same
+  word). Next wallpaper with no pictures of yours opens the picker, which
+  says where to put them; the theme's own wallpaper when it's already the
+  one says so, instead of nothing.
+
+## 0.1.0 — Mazapan (2026-10-05)
+
+- The apps chosen in the installer go in with the system: Basic's (the
+  browser, files, pictures, documents, video) from the ISO itself, no
+  connection needed; the other profiles' packages right after, when the
+  installer is online. The first start has them; only apps from Flathub,
+  their makers or the web are left for the first login. The Apps menu
+  counts them as its own, to remove them later.
+- The Wi-Fi joined in the installer connects by itself after the restart:
+  it was kept tied to the live system's name for the card, so it was never
+  tried and its password was asked again.
+- Without a connection at the first login, a notification says the apps you
+  chose will be installed as soon as you connect, instead of nothing.
+- Coding agents in Apps, the installer and the welcome: a Coding agents
+  profile with Claude Code (from Anthropic itself, checked, and it keeps
+  itself up to date; one installed by hand counts as there), Codex,
+  OpenCode, Gemini CLI and Qwen Code, and two ways to run several at once:
+  T3 Code (a window for them, each on its own branch) and Herdr (side by
+  side in the terminal), both from their makers' releases on GitHub,
+  checked against the checksum GitHub keeps, updated by mazapan update.
+  The Development, .NET and Mobile profiles bring them too (all but Qwen
+  Code). Found in the palette too ("codex", "agents"). With none installed, the
+  Control Center's Agents section offers to install one; with some, "More
+  agents".
+- The weather, market prices, the check for updates and the agents' limits
+  are fetched again as soon as the internet comes back, not at their next
+  turn hours or minutes later; a forecast that failed online is tried again
+  in a minute. Plugins can follow the connection too (Online, in the plugin
+  API).
+
+- The columns' keys work on every keyboard: equal widths is SUPER + W,
+  phone width SUPER + P, a window into the next column SUPER + CTRL + ←/→
+  (`=`, `[` and `]` need SHIFT or ALTGR on Spanish, Latin American or
+  German keyboards, so those keys couldn't be pressed there). Keys you set
+  yourself stay as they are.
+- Learn (SUPER + F1, or Learn in the palette): short lessons on moving
+  around, each a real recording of the move with its keys lit as it
+  happens, then tried for real on practice windows of their own and
+  ticked off. Holding SUPER shows every key, grouped, until it's let go
+  (SUPER + K too). In the palette, an action a lesson teaches shows its
+  recording beside it; the welcome offers the tour at the end.
+- The overview and the workspace previews let go of their window captures
+  when they hide: a screen recording followed by closing a window that had
+  been in the overview brought the whole shell down.
+- Updates with nothing to update say only that, without Arch's news or a
+  warning that looked like a manual update was needed; the news shows
+  before an update, each in full, the ones asking for a step by hand
+  saying so. An error is said in full under the title, never past the
+  window's edge.
+- Apps without a window of their own (Lazygit, GitHub CLI, mise) are found
+  in the palette as installed, and open in a terminal.
+- The command palette, redesigned: your apps first, with their icons;
+  results in sections (best match, apps, windows, actions, settings, not
+  installed) and filters you can see; every row says what Enter does, and
+  a panel beside it says what it is and where it opens. Settings pages and
+  switches (Wi-Fi, Bluetooth, night light…) are found there too. An app
+  that doesn't open says why instead of doing nothing, and terminal apps
+  such as Neovim open in a terminal, from Apps too.
+- Joining a Wi-Fi: the password is asked right under the network, with an
+  eye to see what you type, Connect and Cancel, "Connecting…" while it
+  tries, and the error in place with what you typed kept to fix it. Esc
+  cancels only the password. The same in the bar, the welcome and the
+  installer.
+- Plugins says who made each one: Mazapan, or the Community. Community
+  plugins (Markets, to start) come with Mazapan and install from the panel
+  even offline; a search finds them, installed or not, whatever the tab,
+  and the tabs show how many each holds.
+- The apps chosen in the installer are installed for sure: at the first
+  login once the repositories answer, and the list is kept until they're
+  all there. A cancelled password or a failure offers to try again (and
+  the next login tries again); one app that can't be installed (its
+  maker unreachable, a package gone from the repositories) no longer
+  stops the others. The Wi-Fi joined in the installer comes with the
+  installed system, so it starts online.
+- A Control Center: the icons on the bar's right become one status pill
+  that says when something needs you (an agent waiting, a recording, the
+  battery low, an update ready), in its color. A click or SUPER + A grows
+  it into one panel: what needs you now, each with its action; Wi-Fi and
+  Bluetooth with their lists right there, Do Not Disturb, night light, keep
+  awake, power saver and displays as switches; the sound and where it goes,
+  the brightness, the music playing, your agents, notifications and the
+  power buttons. In the theme, as everything; off in Plugins, and the bar
+  is as it was.
+- Plugin pages in the Plugins panel are in English in every language (the
+  repository's docs are English only); names, descriptions and settings
+  are still translated.
+- The notification center closes with a click outside it again.
+- Notification banners go away after their time again.
+- .NET: the HTTPS certificate and Aspire's templates are set up until it
+  works (an SDK installed later, or no connection the first time).
+- Settings › Default apps lists the apps you have.
+- Copying a capture's text takes a second, not twenty.
+- Databases: Redis's connection URL logs in.
+- History says what an entry changed, in words; undoing your last change
+  no longer asks for a password when nothing of the system's changed.
+- Updates name the apps they updated besides packages.
+- The market ticker no longer moves the icons beside it; reminders show
+  an alarm clock, not the notifications' bell.
+- The welcome's last step fits in its card.
 
 - Gaming: Steam from Arch (on the system's drivers), and on hybrid laptops
   Steam, Lutris and Heroic on the NVIDIA card by themselves; the 32-bit
@@ -93,7 +425,7 @@ release (a tag `vX.Y.Z`) names them.
   Share), to a device nearby with LocalSend or to one of yours with
   Tailscale. Tailscale from Apps comes ready: no sudo, sign in from the
   palette, files sent to you land in Downloads with a notification. The
-  firewall lets LocalSend in, as Omarchy does.
+  firewall lets LocalSend in.
 - A plugin turned off now undoes what its files' reloads did (a service it
   started is stopped), for your own files as for system ones.
 
@@ -112,7 +444,7 @@ release (a tag `vX.Y.Z`) names them.
   your time and the agent's, in the dashboard.
 
 - Agents: Claude Code's hooks can't block a prompt even with an older
-  Mazapán (they never fail), and say when work goes on after a permission;
+  Mazapan (they never fail), and say when work goes on after a permission;
   a minute idle after an answer no longer reads as "waiting for you".
   Limits at 1 % no longer read as full. The dashboard ends when closed,
   keeps a day's bar on its day in any time zone and shows 30 and 90 days
@@ -125,13 +457,13 @@ release (a tag `vX.Y.Z`) names them.
   MacBooks and Broadcom wl machines (their checks look at every installed
   kernel), and the installer no longer stops there.
 
-- Mazapán updates itself: its own signed repository, in two channels
+- Mazapan updates itself: its own signed repository, in two channels
   (stable, and edge with every release first): `mazapan channel` says which
   one and switches, `mazapan version` says the version.
 - Updates in a few steps, each with its ✓, from the terminal or the panel:
   room and power checked and the machine kept awake, the keyrings first,
   a failed initramfs rolled back, what needs a restart offered, what's new
-  in Mazapán shown. A new Mazapán finishes the update it came in.
+  in Mazapan shown. A new Mazapan finishes the update it came in.
 - The disk encrypted by default, with a recovery key (shown as text and a
   code to photograph) and one password: typed as the computer starts, it
   logs in and opens the keyring.
@@ -172,7 +504,7 @@ release (a tag `vX.Y.Z`) names them.
   in the clipboard history); text read in your language.
 - Every built-in plugin has its page in the Plugins panel.
 - Installing an app works before a repository was ever fetched (installed
-  offline, or Mazapán's repository newly added).
+  offline, or Mazapan's repository newly added).
 - Agents: every coding agent and account found by itself (Claude Code with
   each of its accounts, opencode, pi, Codex); in the bar, which session
   works and which waits for you (a click goes to its window), each
@@ -185,9 +517,10 @@ release (a tag `vX.Y.Z`) names them.
   Android Studio, phones over USB). Apps can come from their makers,
   checked against their published checksums and kept up to date by
   mazapan update.
-- 18 hardware fixes from Omarchy as hardware plugins, each offered only
-  on the machines that need it (Apple, ASUS, Surface, Framework, Broadcom,
-  Intel Wi-Fi 7 and lpmd, Vulkan, nouveau).
+- 18 hardware fixes as hardware plugins (credited in
+  THIRD_PARTY_NOTICES.md), each offered only on the machines that need it
+  (Apple, ASUS, Surface, Framework, Broadcom, Intel Wi-Fi 7 and lpmd,
+  Vulkan, nouveau).
 - The agents' views quieter: each agent its own color, the data in
   neutral tones, amber and red only where something needs you.
 - Fixed after an audit: the privacy dots no longer keep a processor busy,

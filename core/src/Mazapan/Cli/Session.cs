@@ -33,7 +33,7 @@ public static partial class Program
             // like orphans and go. Kept until it reads again (or is turned off).
             if (BrokenNotOff.Count > 0 && orphans.Count > 0)
             {
-                Console.Error.WriteLine($"warning: {orphans.Count} file(s) no plugin wrote are kept while {string.Join(", ", BrokenNotOff)} can't be read");
+                Console.Error.WriteLine($"warning: {orphans.Count} file(s) no plugin wrote are kept while {string.Join(", ", BrokenNotOff)} can't be read or aren't installed yet");
                 orphans = [];
             }
             return (changes, orphans, owned);
@@ -274,8 +274,8 @@ public static partial class Program
     private static partial Regex AccentPattern();
 
     /// <summary>
-    /// The version of Mazapán this account's desktop was last written by: a
-    /// login after Mazapán changed (an update through pacman by hand, or
+    /// The version of Mazapan this account's desktop was last written by: a
+    /// login after Mazapan changed (an update through pacman by hand, or
     /// another account's) applies it (apply --if-updated), so nothing needs
     /// migrations or a hook in pacman.
     /// </summary>
@@ -322,7 +322,7 @@ public static partial class Program
             .List("reset", "back to the plugin's default: plugin.key")
             .List("enable", "enable a plugin")
             .List("disable", "disable a plugin")
-            .Bool("if-updated", "only if this Mazapán isn't the one that last wrote the desktop (at login)")
+            .Bool("if-updated", "only if this Mazapan isn't the one that last wrote the desktop (at login)")
             .Parse(args);
         if (fs.IsSet("if-updated") && UpToDate()) return 0;
         var themeId = fs.Get("theme");

@@ -1,0 +1,101 @@
+---
+import Chomp from "../components/Chomp.astro";
+import PluginsTeaser from "../components/PluginsTeaser.astro";
+import "../styles/site.css";
+
+const github = "https://github.com/singularengine/mazapan";
+const downloads = "https://sourceforge.net/projects/mazapan/files/";
+// The release's ISO (pkg/sourceforge puts it there, with its .sha256 and .sig).
+const release = {
+  version: "0.5.2",
+  iso: "mazapan-0.5.2-2026.11.11-x86_64.iso",
+  sha256: "a7de83943e3a0d6e030fa0ee0ae9f5ca99a976aef016a90efe2739119820ae45",
+};
+const isoUrl = `${downloads}${release.version}/${release.iso}`;
+const key = "B999 B535 645B 54C0 B659  ADBE 8E5A 7E23 52C9 2A1B";
+
+const features = [
+  ["Your agents, part of the desktop", "Every coding agent's live sessions in the bar, each account's limits and spend in one place, a built-in MCP server, and changes to the system only through previewed steps you approve."],
+  ["Updates you can undo", "Arch's news before updating, an automatic rollback when a check fails, and checkpoints you can start from the boot menu."],
+  ["Safe from the first boot", "Full-disk encryption with a recovery key, one password for the disk and the account, and a firewall that lets nothing in."],
+  ["Made for developers", "Profiles for development, .NET and mobile, Claude Code, Codex, OpenCode and Gemini CLI ready, containers without root, databases in one click."],
+  ["One look, everywhere", "One theme for the whole system, from the boot menu to your editor, picked live or made from any picture."],
+  ["A desktop that flows", "Scrolling columns, an overview of every workspace, a command palette that finds apps, windows and settings, and a Control Center."],
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mazapan · An agentic desktop OS on Arch Linux</title>
+    <meta name="description" content="Mazapan is an agentic desktop OS on Arch Linux: your coding agents in the desktop, updates you can undo, one theme across the system." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:title" content="Mazapan" />
+    <meta property="og:description" content="An agentic desktop OS on Arch Linux." />
+  </head>
+  <body>
+    <header class="top">
+      <a class="brand" href="/"><img src="/favicon.svg" alt="" width="28" height="28" />Mazapan</a>
+      <nav>
+        <a href="#features">Features</a>
+        <a href="/plugins/">Plugins</a>
+        <a href="#download">Download</a>
+        <a href={github}>GitHub</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <h1>Mazapan</h1>
+        <p class="tagline">An agentic desktop OS on Arch Linux.</p>
+        <p class="lede">
+          Your coding agents are part of the desktop, every change to the system can be
+          undone, and one theme runs from the boot menu to your editor.
+        </p>
+        <div class="actions">
+          <a class="button primary" href="#download">Download</a>
+          <a class="button" href={github}>Source on GitHub</a>
+        </div>
+      </section>
+
+      <Chomp />
+
+      <section id="features" class="features">
+        {features.map(([title, text]) => (
+          <article>
+            <h2>{title}</h2>
+            <p>{text}</p>
+          </article>
+        ))}
+      </section>
+
+      <PluginsTeaser />
+
+      <section id="download" class="download">
+        <h2>Download</h2>
+        <p class="soon">
+          <strong>Mazapan {release.version}</strong>, the latest release
+          (<a href={`${github}/releases/tag/v${release.version}`}>what's new</a>).
+        </p>
+        <p><a class="button primary" href={`${isoUrl}/download`}>Download {release.iso}</a></p>
+        <ol>
+          <li>Get the ISO, its <a href={`${isoUrl}.sha256/download`}><code>.sha256</code></a> and its <a href={`${isoUrl}.sig/download`}><code>.sig</code></a>.</li>
+          <li>Check it: <code>sha256sum -c {release.iso}.sha256</code> says <code>OK</code>
+            (SHA-256 <code class="hash">{release.sha256}</code>), and the signature is
+            the Mazapan release key's: <code class="hash">{key}</code>.</li>
+          <li>Write it to a USB stick of 8 GB or more and start the computer from it.</li>
+          <li>The installer guides you: language, disk, account, and the apps you want.</li>
+        </ol>
+        <p class="note">x86_64, UEFI. NVIDIA, AMD and Intel graphics.</p>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        MIT licensed · <a href={github}>GitHub</a> · <a href={downloads}>SourceForge</a>
+      </p>
+      <p class="fine">Mazapan is built on Arch Linux and is not affiliated with or endorsed by it.</p>
+    </footer>
+  </body>
+</html>

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Publishes Mazapán to its own repository: the packages (mazapan and
+# Publishes Mazapan to its own repository: the packages (mazapan and
 # mazapan-keyring) built, signed, and added to a channel's database, in
 # out/repo/<channel>/x86_64/: what's uploaded to where pkg/repository.toml
 # says. Every release goes to edge first; promote takes one to stable.
@@ -122,7 +122,7 @@ case "${1:-}" in
     [[ -z $st || ${MAZAPAN_RELEASE_DIRTY:-} == 1 ]] || die "the checkout has changes not committed: a release is a commit"
     work=$(mktemp -d)
     trap 'rm -rf "$work"' EXIT
-    # Every package of Mazapán's own: pkg/PKGBUILD, and each pkg/*/PKGBUILD.
+    # Every package of Mazapan's own: pkg/PKGBUILD, and each pkg/*/PKGBUILD.
     for p in mazapan $(cd "$repo/pkg" && ls -d */ | tr -d / | while read -r d; do [[ -f $d/PKGBUILD ]] && echo "$d"; done); do
       mkdir -p "$work/$p"
       if [[ $p == mazapan ]]; then cp "$repo/pkg/PKGBUILD" "$work/$p/"; else cp "$repo/pkg/$p"/* "$work/$p/"; fi

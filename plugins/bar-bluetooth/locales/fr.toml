@@ -15,3 +15,7 @@
 "no_devices" = "Aucun appareil pour l'instant"
 "hint" = "clic : connecter · clic droit : oublier"
 "check" = "Le Bluetooth fonctionne (si vous l'utilisez)"
+"off_short" = "désactivé"
+"on_short" = "activé"
+"act.bluetooth" = "Activer ou désactiver le Bluetooth"
+"act.bluetooth.kw" = "bluetooth casque sans fil"

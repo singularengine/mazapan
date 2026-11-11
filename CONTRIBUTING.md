@@ -11,7 +11,7 @@ their language. Everyone taking part follows the
 
 ## Ways to help
 
-- **Try it and say what broke**: a [bug report](https://github.com/rick-dev-creator/mazapan/issues/new?template=bug_report.yml),
+- **Try it and say what broke**: a [bug report](https://github.com/singularengine/mazapan/issues/new?template=bug_report.yml),
   with `mazapan version` and, for hardware, `mazapan hardware`.
 - **A machine it doesn't handle yet**: a hardware plugin (`[hardware]`),
   see [A plugin](#a-plugin).
@@ -102,6 +102,11 @@ English where a translation is missing, which the installer says. Those
 with a translation come first; a new one moves up by itself.
 
 ## A plugin
+
+A plugin of yours doesn't need to come here: it lives in your own
+repository and the plugin registry lists it
+([docs/publishing-plugins.md](docs/publishing-plugins.md)). This is for
+Mazapan's own plugins (`plugins/`).
 
 ```sh
 mazapan plugins new my-widget --kind bar    # in the VM

@@ -47,7 +47,7 @@ public static partial class Program
     const int MinBattery = 20;
 
     /// <summary>
-    /// Ready: what has to hold before anything changes (Omarchy's checks):
+    /// Ready: what has to hold before anything changes:
     /// room for the packages, and power. An error says what to do; else what
     /// was found, in a few words.
     /// </summary>
@@ -115,7 +115,7 @@ public static partial class Program
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
             };
-            foreach (var a in new[] { "--what=sleep:idle:handle-lid-switch", "--who=Mazapán", "--why=Updating the system", "--mode=block", "cat" })
+            foreach (var a in new[] { "--what=sleep:idle:handle-lid-switch", "--who=Mazapan", "--why=Updating the system", "--mode=block", "cat" })
                 psi.ArgumentList.Add(a);
             try
             {
@@ -195,7 +195,7 @@ public static partial class Program
     static readonly HttpClient ChangelogHttp = new() { Timeout = TimeSpan.FromSeconds(8) };
 
     /// <summary>
-    /// What's new in Mazapán, when the update brings it: the changelog of the
+    /// What's new in Mazapan, when the update brings it: the changelog of the
     /// channel this system follows, from the version installed on. Empty
     /// (never an error) when it can't be read: it's only words.
     /// </summary>
@@ -263,10 +263,24 @@ public static partial class Program
         Install.PluginsLock lk;
         try { lk = Install.PluginsLock.Load(); }
         catch (MazapanException) { return out_; }
+        // Those that follow a catalog move when the catalog lists another
+        // version of them, not when a branch moves.
+        List<Install.CatalogEntry> listed = [];
+        if (lk.Plugins.Any(e => e.Catalog))
+        {
+            try { listed = Listed(Config.Settings.Load(), false).Entries; }
+            catch (MazapanException) { }
+        }
         foreach (var e in lk.Plugins)
         {
             var dir = Paths.Join(Install.Git.Dir, e.Id);
             if (!Directory.Exists(dir)) continue;
+            if (e.Catalog && e.Ref != "")
+            {
+                if (CatalogMove(e, listed) is { } ce)
+                    out_.Add(new PluginUpdate(e.Id, Install.Git.Short(e.Commit), ce.Commit != "" ? Install.Git.Short(ce.Commit) : ce.Ref));
+                continue;
+            }
             // Exactly the ref followed: ls-remote matches a pattern's tail, so
             // "main" alone would also find refs/heads/release/main.
             string[] wanted = e.Ref == "" ? ["HEAD"] : [$"refs/tags/{e.Ref}^{{}}", $"refs/tags/{e.Ref}", $"refs/heads/{e.Ref}"];

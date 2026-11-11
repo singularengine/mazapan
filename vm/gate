@@ -9,6 +9,17 @@
 #   vm/gate [encrypted|plain]     encrypted by default, as the installer
 #
 # MAZAPAN_GATE_HIBERNATE=1 installs with hibernation (a VM has no battery).
+# MAZAPAN_GATE_APPS='["lazygit","github-cli"]' chooses apps at the install:
+# their Arch packages go in with the system (online), the rest at the first
+# login (the password typed into the polkit agent's dialog if it's asked, as
+# a person would), and they're checked there: installed, each command
+# answering, and nothing installed twice.
+# MAZAPAN_GATE_OFFLINE=1: no internet from the install to the first login
+# (SSH still in): Basic comes from the ISO, the rest waits, said once; then a
+# cable is plugged in (vm/vm try plug) and the rest goes in by itself.
+# MAZAPAN_GATE_KEEP=1 leaves the VM running when a check fails.
+# MAZAPAN_GATE_LANG=es installs in that language (its locale, es_ES.UTF-8;
+# the keyboard stays us, for the password typed at the disk's prompt).
 # MAZAPAN_GATE_REPO=DIR also updates the installed system from that
 # repository (pkg/release's out/repo), copied to /srv/mazapan-repo: the ISO
 # has to be built with MAZAPAN_REPO_SERVER='file:///srv/mazapan-repo/$channel/$arch'
@@ -23,29 +34,45 @@ mode="${1:-encrypted}"
 user=gate
 pass=gatepassword # letters only: typed with QEMU's sendkey at the disk's prompt
 export MAZAPAN_MEM="${MAZAPAN_MEM:-8G}" # the live ISO is copied to memory
+offline="${MAZAPAN_GATE_OFFLINE:-}"
+[[ $offline == 1 ]] && export MAZAPAN_TRY_OFFLINE=1
 
 step() { printf '\e[1;35m[gate]\e[0m %s\n' "$*"; }
 pass_() { printf '\e[1;32m[gate] PASS\e[0m %s\n' "$*"; }
 fail() {
   printf '\e[1;31m[gate] FAIL\e[0m %s\n' "$*" >&2
-  "$vm" try stop >/dev/null 2>&1 || true
+  # MAZAPAN_GATE_KEEP=1: left running, to look at what failed (vm/vm try ssh).
+  [[ ${MAZAPAN_GATE_KEEP:-} == 1 ]] || "$vm" try stop >/dev/null 2>&1 || true
   exit 1
 }
 running() { [[ -f $state/try.pid ]] && kill -0 "$(cat "$state/try.pid")" 2>/dev/null; }
 # Waits without hammering SSH: the firewall rate-limits it (6 in 30 s).
 pause() { timeout "$1" bash -c 'until false; do sleep 5; done' || true; }
-as_user() { MAZAPAN_TRY_USER=$user timeout 60 "$vm" try ssh "$@"; }
+# The installed system's firewall lets 6 SSH connections in every 30 s, and
+# counts the ones it refuses: a burst shuts the gate out for good (every
+# retry keeping it shut). So no connection comes sooner than 6 s after the
+# one before, wherever it's made (a file, as calls run in subshells).
+spaced() {
+  local last now
+  last=$(stat -c %Y "$state/gate-ssh" 2>/dev/null || echo 0)
+  now=$(date +%s)
+  (( now - last >= 6 )) || sleep $(( 6 - (now - last) ))
+  touch "$state/gate-ssh"
+}
+as_user() { spaced; MAZAPAN_TRY_USER=$user timeout 60 "$vm" try ssh "$@"; }
 type_password() {
   local c
   for c in $(grep -o . <<<"$pass"); do "$vm" try key "$c" >/dev/null 2>&1; done
   "$vm" try key ret >/dev/null 2>&1
 }
 
+lang="${MAZAPAN_GATE_LANG:-en}"
+case $lang in en) locale=en_US.UTF-8 ;; pt) locale=pt_BR.UTF-8 ;; *) locale="${lang}_${lang^^}.UTF-8" ;; esac
 answers="$state/gate-answers.json"
 cat > "$answers" <<EOF
 {"disk":"auto","encrypt":$([[ $mode == encrypted ]] && echo true || echo false),"user":"$user","fullname":"Gate",
- "password":"$pass","timezone":"UTC","language":"en","locale":"en_US.UTF-8","kb_layout":"us","kb_variant":"",
- "theme":"phosphor","apps":[],"after":"none"$([[ ${MAZAPAN_GATE_HIBERNATE:-} == 1 ]] && echo ',"hibernate":true')}
+ "password":"$pass","timezone":"UTC","language":"${lang}","locale":"${locale}","kb_layout":"us","kb_variant":"",
+ "theme":"phosphor","apps":${MAZAPAN_GATE_APPS:-[]},"after":"none"$([[ ${MAZAPAN_GATE_HIBERNATE:-} == 1 ]] && echo ',"hibernate":true')}
 EOF
 
 step "a fresh try VM, the answers on its cidata seed ($mode)"
@@ -101,6 +128,7 @@ pause 30 # the desktop settling: the shell, the first apply
 pass_ "started"
 
 step "checks"
+spaced
 doctor=$(MAZAPAN_TRY_USER=$user timeout 120 "$vm" try run 'mazapan doctor --json' 2>/dev/null) || true
 [[ -n $doctor ]] || fail "mazapan doctor --json gave nothing"
 jq -e '.session == true' <<<"$doctor" >/dev/null || fail "no graphical session ($([[ $mode == plain ]] && echo "the login screen didn't take the password" || echo "not straight in after the start"))"
@@ -116,12 +144,79 @@ if [[ $mode == encrypted ]]; then
   pass_ "one password: the keyring is open"
 fi
 
+# The notices the first login gave (the notification center's history).
+notices() { as_user 'jq -r ".items[] | .summary" ~/.local/state/mazapan-notifications/history.json' 2>/dev/null; }
+waiting="will be installed as soon as you connect"
+
+if [[ $offline == 1 ]]; then
+  step "with no internet"
+  basic=$(as_user 'mazapan apps list --json' 2>/dev/null | jq -r '[.profiles[] | select(.id=="basic") | .apps[]] as $b | [.apps[] | select((.id as $i | $b | index($i)) and .kind == "pacman" and (.installed | not)) | .id] | join(", ")')
+  [[ -z $basic ]] || fail "Basic isn't there with no connection: $basic"
+  pass_ "Basic came from the ISO"
+  if [[ -n ${MAZAPAN_GATE_APPS:-} ]]; then
+    pause 40 # the notice waits to be sure the network isn't just slow
+    as_user 'test -f ~/.local/state/mazapan/first-apps' 2>/dev/null || fail "first-apps is gone with no connection"
+    n=$(notices | grep -c "$waiting" || true)
+    [[ $n == 1 ]] || fail "the 'waiting for a connection' notice came $n times: $(notices | paste -sd'|')"
+    pass_ "the apps wait, said once"
+  fi
+  "$vm" try plug >/dev/null
+  pass_ "a cable plugged in"
+fi
+
+if [[ -n ${MAZAPAN_GATE_APPS:-} ]]; then
+  step "the apps chosen at the install, at the first login"
+  runlog() { as_user 'cat ~/.local/state/mazapan/apps/run.log' 2>/dev/null | sed 's/\x1b\[[0-9;]*m//g' | tail -8; }
+  # Their Arch packages came with the system: there before the first login
+  # gets to them (online, the installer put them in).
+  [[ $offline == 1 ]] || {
+  early=$(as_user 'mazapan apps list --json' 2>/dev/null | jq -r --argjson want "$MAZAPAN_GATE_APPS" '[.apps[] | select((.id as $i | $want | index($i)) and .kind == "pacman" and (.installed | not)) | .id] | join(", ")')
+  [[ -z $early ]] || fail "not installed with the system: $early"
+  pass_ "their Arch packages came with the system"
+  # Online all along: no "waiting for a connection" notice.
+  ! notices | grep -q "$waiting" || fail "the 'waiting for a connection' notice came, online"
+  }
+  # The password only if something still needs root (it didn't all go in).
+  # One SSH connection a look: the firewall lets 6 in every 30 s, and more
+  # shut the gate out (each look failing, as if the apps never finished).
+  asked=
+  for i in $(seq 1 30); do
+    look=$(as_user 'pgrep -x pkexec >/dev/null && echo asked; test -f ~/.local/state/mazapan/first-apps || echo gone; grep -q "^DONE " ~/.local/state/mazapan/apps/run.log 2>/dev/null && echo done; true' 2>/dev/null || true)
+    grep -q asked <<<"$look" && { asked=1; break; }
+    grep -qE 'gone|done' <<<"$look" && break
+    pause 12
+  done
+  if [[ -n $asked ]]; then pause 3; type_password; fi
+  done_=
+  for i in $(seq 1 40); do
+    pause 30
+    as_user 'grep -q "^DONE " ~/.local/state/mazapan/apps/run.log' 2>/dev/null && { done_=1; break; }
+  done
+  [[ -n $done_ ]] || fail "the apps didn't finish in 20 minutes: $(runlog)"
+  as_user 'grep -q "^DONE 0$" ~/.local/state/mazapan/apps/run.log' 2>/dev/null || fail "the apps failed: $(runlog)"
+  as_user 'test ! -e ~/.local/state/mazapan/first-apps' 2>/dev/null || fail "first-apps is still there after installing them"
+  missing=$(as_user 'mazapan apps list --json' 2>/dev/null | jq -r --argjson want "$MAZAPAN_GATE_APPS" '[.apps[] | select((.id as $i | $want | index($i)) and (.installed | not)) | .id] | join(", ")')
+  [[ -z $missing ]] || fail "not installed: $missing"
+  # Nothing installed twice: the first login had no Arch packages left to put in.
+  if [[ $offline != 1 ]] && as_user 'grep -q "^step packages" ~/.local/state/mazapan/apps/run.log' 2>/dev/null; then
+    fail "the first login installed Arch packages again: $(runlog)"
+  fi
+  # Each one with a command answers.
+  for cmd in $(as_user 'mazapan apps list --json' 2>/dev/null | jq -r --argjson want "$MAZAPAN_GATE_APPS" '.apps[] | select(.id as $i | $want | index($i)) | .command // empty'); do
+    # With the PATH apps opened from the desktop get (Hyprland's, ~/.local/bin
+    # first: where the makers' apps go), as a terminal there would have it.
+    as_user "export PATH=\$(tr '\\0' '\\n' </proc/\$(pgrep -u \$USER -x qs | head -1)/environ | sed -n 's/^PATH=//p'); $cmd --version >/dev/null 2>&1 || $cmd --help >/dev/null 2>&1" 2>/dev/null || fail "$cmd doesn't answer"
+  done
+  pass_ "installed: $(jq -r 'join(", ")' <<<"$MAZAPAN_GATE_APPS")"
+fi
+
 if [[ -n ${MAZAPAN_GATE_REPO:-} ]]; then
   step "an update from $MAZAPAN_GATE_REPO"
   pause 30
   tar -C "$MAZAPAN_GATE_REPO" -cf - . | as_user "cat > /tmp/repo.tar; printf '%s\n' '$pass' | sudo -S -p '' sh -c 'mkdir -p /srv/mazapan-repo && tar -C /srv/mazapan-repo -xf /tmp/repo.tar && echo \"$user ALL=(ALL) NOPASSWD: ALL\" > /etc/sudoers.d/99-gate && chmod 440 /etc/sudoers.d/99-gate'" >/dev/null 2>&1 \
     || fail "couldn't put the repository on it"
   pause 30
+  spaced
   out=$(MAZAPAN_TRY_USER=$user timeout 900 "$vm" try ssh 'mazapan update -y 2>&1; echo "exit=$?"' 2>&1 | sed 's/\x1b\[[0-9;]*m//g') || true
   grep -q '^exit=0$' <<<"$out" || fail "the update didn't go through: $(tail -5 <<<"$out")"
   pass_ "$(grep -m1 '^Mazap\|^Updated' <<<"$out")"

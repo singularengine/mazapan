@@ -5,7 +5,7 @@ uses ([plugin-api.md](plugin-api.md)). `mazapan plugins` lists them on a machine
 `mazapan plugins show ID`, or its page in the Plugins panel (`SUPER + SHIFT + P`),
 says what each needs, what it can do, and its settings.
 
-100 plugins, by what they're for.
+101 plugins, by what they're for.
 
 ## Agents
 
@@ -18,6 +18,7 @@ says what each needs, what it can do, and its settings.
 | Plugin | What it does |
 |---|---|
 | [`shell-bar`](../plugins/shell-bar) | A bar on every monitor (Quickshell), filled with the widgets other plugins put in its left/center/right slots; ships a kit of components for them |
+| [`control-center`](../plugins/control-center) | One panel for what was a row of icons on the bar's right: the switches (Wi-Fi, Bluetooth, Do Not Disturb…), the sound and where it goes, the music, your agents, updates and notifications, grown out of a status pill that tells you when something needs you |
 | [`bar-workspaces`](../plugins/bar-workspaces) | Workspace numbers in the bar, with a live preview on hover whose windows can be dragged out, and an overview of every workspace at once (as Niri's) |
 | [`bar-window-title`](../plugins/bar-window-title) | The focused window's title in the bar, next to the workspaces |
 | [`bar-clock`](../plugins/bar-clock) | Day, date and time in the middle of the bar, in the system's language; click for a calendar |
@@ -40,7 +41,7 @@ says what each needs, what it can do, and its settings.
 | [`settings`](../plugins/settings) | The settings everyone needs, a page each: keyboard, touchpad and mouse, default apps, language and time zone, the screens and the look; every other one in the Plugins panel |
 | [`history`](../plugins/history) | What changed on the desktop, in words (a theme, a setting, a plugin on or off, an update), newest first, each with its own undo |
 | [`welcome`](../plugins/welcome) | The first login's welcome: language, keyboard, time zone, Wi-Fi, the look and apps by profile, a screen each; again from the palette any time |
-| [`plugin-manager`](../plugins/plugin-manager) | Find, install and set up plugins: the built-in ones, yours and the catalogs', each with its page (README, what it can do, settings) |
+| [`plugin-manager`](../plugins/plugin-manager) | Find, install and set up plugins: Mazapan's own, the community's (from the plugin registry and other catalogs) and yours, each marked by who made it and with its page (README, what it can do, settings) |
 | [`login`](../plugins/login) | The login screen in the theme: the clock, your name, your password (greetd, with a Hyprland of its own and a Quickshell greeter). The installer turns it on; on a system with another login manager, it takes its place |
 
 ## Windows, workspaces and screens
@@ -131,6 +132,7 @@ says what each needs, what it can do, and its settings.
 
 | Plugin | What it does |
 |---|---|
+| [`hw-amd-strix-psr`](../plugins/hw-amd-strix-psr) | The screen of laptops on AMD Ryzen AI 300 (Strix and Krackan Point: the ASUS Zenbook S 16 and others) no longer freezes on its last frame, the mouse and keyboard seemingly dead: Panel Self Refresh, which their panels hang in, turned off |
 | [`hw-apple-brcmfmac-wpa`](../plugins/hw-apple-brcmfmac-wpa) | Macs whose Broadcom Wi-Fi runs on the brcmfmac driver (2015 on, T2 Macs too) join WPA2/WPA3 networks that otherwise turn the right password down: the handshake done by wpa_supplicant, not by the card's firmware |
 | [`hw-apple-fnkeys`](../plugins/hw-apple-fnkeys) | F1–F12 as function keys, media keys with Fn, on keyboards the hid_apple driver runs: Apple's, and others in Mac mode (Keychron…) |
 | [`hw-apple-nvme-suspend`](../plugins/hw-apple-nvme-suspend) | Keeps the NVMe drive of the 2015-2017 MacBook and MacBook Pro out of its deepest power state (D3cold), which it fails to wake from after sleep |
