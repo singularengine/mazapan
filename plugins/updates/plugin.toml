@@ -8,7 +8,7 @@ categories = ["bar", "panel"]
 requires = ["shell-bar"]
 
 [packages]
-pacman = ["quickshell", "pacman-contrib", "libnotify", "fwupd"]
+pacman = ["quickshell", "pacman-contrib", "libnotify", "fwupd", "xdg-terminal-exec"]
 
 [settings]
 # How often to look for updates (hours). Looking downloads the package lists only.
@@ -27,6 +27,12 @@ reload = "sh ~/.local/share/mazapan/bin/shell-reload"
 [[targets]]
 template = "Indicator.qml.tmpl"
 output = "~/.config/quickshell/mazapan/widgets/right/25-updates.qml"
+reload = "sh ~/.local/share/mazapan/bin/shell-reload"
+
+# Its place in the Control Center (when that's on, the icon leaves the bar).
+[[targets]]
+template = "Now.qml.tmpl"
+output = "~/.config/quickshell/mazapan/control/now/30-updates.qml"
 reload = "sh ~/.local/share/mazapan/bin/shell-reload"
 
 [[targets]]

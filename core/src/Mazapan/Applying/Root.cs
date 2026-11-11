@@ -93,18 +93,18 @@ public static partial class AsRoot
     }
 
     /// <summary>
-    /// Points pacman at Mazapán's own repository (Pacman.Repository): its
+    /// Points pacman at Mazapan's own repository (Pacman.Repository): its
     /// mirrorlist written whole, and pacman.conf given the [mazapan] section
     /// that includes it when it hasn't one. The only root writes outside the
     /// drop-in folders, to fixed paths, with text made here.
     /// </summary>
     public static void UseRepository(string mirrorlist)
     {
-        // Without Mazapán's keys in pacman's keyring, its signed packages
+        // Without Mazapan's keys in pacman's keyring, its signed packages
         // would stop every update, Arch's too.
         if (!File.Exists(Pacman.Repository.Keyring))
-            throw new MazapanException("Mazapán's keys aren't installed (mazapan-keyring): its repository can't be trusted yet");
-        Must("putting Mazapán's keys in pacman's keyring", "pacman-key", "--populate", "mazapan");
+            throw new MazapanException("Mazapan's keys aren't installed (mazapan-keyring): its repository can't be trusted yet");
+        Must("putting Mazapan's keys in pacman's keyring", "pacman-key", "--populate", "mazapan");
         Install(Pacman.Repository.Mirrorlist, Files.Utf8.GetBytes(mirrorlist));
         Must("adding [mazapan] to /etc/pacman.conf", "sh", "-c", Pacman.Repository.EnableScript);
     }
@@ -147,11 +147,14 @@ public static partial class AsRoot
         var want = packages.Distinct().Order(StringComparer.Ordinal).ToList();
         GuardPackages(want);
         if (want.Count == 0 || !File.Exists("/usr/bin/pacman")) return [];
-        var psi = new ProcessStartInfo("pacman") { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
+        var psi = new ProcessStartInfo("pacman") { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, RedirectStandardInput = true };
         psi.ArgumentList.Add("-T");
         psi.ArgumentList.Add("--");
         foreach (var w in want) psi.ArgumentList.Add(w);
         using var p = Process.Start(psi)!;
+        // Never the terminal: a repository signed by a key pacman doesn't
+        // know has it ask to import it, even for -T, and no one answers.
+        p.StandardInput.Close();
         var out_ = p.StandardOutput.ReadToEnd();
         p.StandardError.ReadToEnd();
         p.WaitForExit();
@@ -191,12 +194,13 @@ public static partial class AsRoot
 
     static string? Query(params string[] args)
     {
-        var psi = new ProcessStartInfo("pacman") { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
+        var psi = new ProcessStartInfo("pacman") { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, RedirectStandardInput = true };
         psi.Environment["LC_ALL"] = "C";
         foreach (var a in args) psi.ArgumentList.Add(a);
         try
         {
             using var p = Process.Start(psi)!;
+            p.StandardInput.Close(); // as Missing: a question takes its default
             var out_ = p.StandardOutput.ReadToEnd();
             p.StandardError.ReadToEnd();
             p.WaitForExit();

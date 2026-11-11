@@ -1,0 +1,101 @@
+---
+// mazapan.dev/plugins: every plugin in the registry, newest first, to filter and search.
+import Page from "../../layouts/Page.astro";
+import { categoryNames, developer, guide, media, needs, plugins, stars } from "../../lib/plugins";
+
+const categories = Object.keys(categoryNames).filter((c) => plugins.some((p) => p.categories.includes(c)));
+---
+
+<Page title="Plugins · Mazapan" description="Plugins for Mazapan, made by its community, each in its own repository." feed>
+  <section class="gallery-head">
+    <h1>Plugins</h1>
+    <p class="lede">
+      Made by Mazapan's community, each in its own repository. Install one from the Plugins panel
+      (<kbd>SUPER</kbd> + <kbd>SHIFT</kbd> + <kbd>P</kbd>), which shows what it can do before anything is installed, or with
+      <code>mazapan plugins add ID</code>.
+    </p>
+    <p class="needs">{needs}</p>
+    <div class="filters">
+      <input id="search" type="search" placeholder="Search plugins" aria-label="Search plugins" />
+      <div class="chips" role="group" aria-label="Category">
+        <button class="chip on" data-category="">All</button>
+        {categories.map((c) => <button class="chip" data-category={c}>{categoryNames[c]}</button>)}
+      </div>
+    </div>
+  </section>
+
+  <div class="plugin-grid" id="grid">
+    {plugins.map((p) => (
+      <a class="plugin-card" href={`/plugins/${p.id}/`} data-categories={p.categories.join(" ")}
+         data-text={[p.id, p.name, p.description, p.author, p.owner?.login ?? "", p.owner?.name ?? "", ...Object.values(p.translations).flatMap((t) => [t.name ?? "", t.description ?? ""])].join(" ").toLowerCase()}>
+        {p.screenshots[0] && <img class="shot" src={media(p.screenshots[0])} alt="" loading="lazy" />}
+        <div class="card-body">
+          {p.icon && <img class="icon" src={media(p.icon)} alt="" width="40" height="40" />}
+          <div>
+            <h3>{p.name}</h3>
+            <p class="by">
+              {p.owner && <img class="avatar" src={media(p.owner.picture)} alt="" width="18" height="18" loading="lazy" />}
+              <span>{developer(p)}</span>
+              {p.owner && <span class="login">@{p.owner.login}</span>}
+              {p.stars !== undefined && <span class="stars" title={`${p.stars} stars on GitHub`}>★ {stars(p.stars)}</span>}
+            </p>
+          </div>
+        </div>
+        <p class="what">{p.description}</p>
+        <p class="tags">{p.categories.map((c) => <span>{categoryNames[c] ?? c}</span>)}</p>
+      </a>
+    ))}
+  </div>
+  <p id="none" class="none" hidden>No plugin matches.</p>
+
+  <section class="make-yours">
+    <h2>Make your own</h2>
+    <p>Your plugin stays in your own repository; the registry lists it, and finds its new versions by itself.</p>
+    <ol class="steps">
+      <li><strong>Start it.</strong> <code>mazapan plugins new my-plugin --kind panel --dir ~/src/mazapan-my-plugin</code>,
+        then <code>mazapan plugins dev ~/src/mazapan-my-plugin</code> applies it on every save.</li>
+      <li><strong>Make it ready.</strong> An <code>author</code>, a <code>license</code> and a <code>[gallery]</code> icon and
+        screenshots in plugin.toml, a README.md and a LICENSE; <code>mazapan plugins check</code> passes with no errors.</li>
+      <li><strong>Release it.</strong> A public repository, and a tag that is its version: <code>git tag v1.0.0</code>.</li>
+      <li><strong>List it.</strong> A pull request adding <code>id</code>, <code>source</code>, <code>ref</code> and
+        <code>commit</code> to the <a href="https://github.com/singularengine/mazapan-plugins">registry</a>'s plugins.toml.
+        Its checks run, a person reviews what it can do, and once merged it's here and in every Mazapan's Plugins panel.</li>
+    </ol>
+    <p>
+      After that, a new version is only a new tag: listed by itself when it can do nothing more, reviewed first when it can.{" "}
+      <a href={guide}>Publishing a plugin</a> is the whole way, step by step; <a href="/plugins/feed.xml">the feed</a> says what's new.
+    </p>
+  </section>
+</Page>
+
+<script>
+  const search = document.getElementById("search") as HTMLInputElement;
+  const chips = [...document.querySelectorAll<HTMLButtonElement>(".chip")];
+  const cards = [...document.querySelectorAll<HTMLElement>("#grid .plugin-card")];
+  let category = "";
+  function filter() {
+    const words = search.value.toLowerCase().split(/\s+/).filter(Boolean);
+    let shown = 0;
+    for (const c of cards) {
+      const ok = (!category || c.dataset.categories!.split(" ").includes(category)) && words.every((w) => c.dataset.text!.includes(w));
+      c.hidden = !ok;
+      if (ok) shown++;
+    }
+    document.getElementById("none")!.hidden = shown > 0;
+  }
+  search.addEventListener("input", filter);
+  // A plugin page's category links here: /plugins/?category=bar.
+  const wanted = new URLSearchParams(location.search).get("category");
+  const chip = chips.find((x) => x.dataset.category === wanted);
+  if (wanted && chip) {
+    category = wanted;
+    chips.forEach((x) => x.classList.toggle("on", x === chip));
+    filter();
+  }
+  for (const chip of chips)
+    chip.addEventListener("click", () => {
+      category = chip.dataset.category!;
+      chips.forEach((x) => x.classList.toggle("on", x === chip));
+      filter();
+    });
+</script>

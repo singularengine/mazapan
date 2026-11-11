@@ -19,8 +19,8 @@
   <img src="https://img.shields.io/badge/Hyprland-58E1FF?style=for-the-badge&logo=hyprland&logoColor=101418&labelColor=101418" alt="Hyprland">
   <img src="https://img.shields.io/badge/Quickshell-8A6FDF?style=for-the-badge&labelColor=101418" alt="Quickshell">
   <img src="https://img.shields.io/badge/.NET_10_AOT-512BD4?style=for-the-badge&logo=dotnet&logoColor=white&labelColor=101418" alt=".NET 10 AOT">
-  <img src="https://img.shields.io/github/license/rick-dev-creator/mazapan?style=for-the-badge&labelColor=101418&color=C9A15B" alt="MIT">
-  <a href="https://github.com/rick-dev-creator/mazapan/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/rick-dev-creator/mazapan/ci.yml?branch=main&style=for-the-badge&labelColor=101418&label=CI" alt="CI"></a>
+  <img src="https://img.shields.io/github/license/singularengine/mazapan?style=for-the-badge&labelColor=101418&color=C9A15B" alt="MIT">
+  <a href="https://github.com/singularengine/mazapan/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/singularengine/mazapan/ci.yml?branch=main&style=for-the-badge&labelColor=101418&label=CI" alt="CI"></a>
 </p>
 
 <p align="center">
@@ -36,9 +36,14 @@
   <a href="docs/roadmap.md">Roadmap</a>
 </p>
 
-<p align="center"><img src="docs/media/agent.gif" alt="An agent asks to change the theme; the card shows the diff; allowed, the whole desktop follows"></p>
+<p align="center"><img src="docs/media/agent.gif" alt="Mazapan, the agent, asked for the Amber theme: its card shows the exact diff; allowed, the whole desktop follows"></p>
 
-<p align="center"><sub>Claude Code asks, through Mazapan's MCP server, to switch the theme. The card shows exactly what it would write; one click, and the whole desktop follows, the agents' dashboard included. <i>(Sample accounts and data.)</i></sub></p>
+<p align="center"><sub>Asked for the Amber theme, Mazapan, the agent, prepares the change. Mazapan's own card shows exactly what it would write; one click, and the whole desktop follows.</sub></p>
+
+<p align="center">
+  ▶ <b><a href="docs/media/mazapan-agent.mp4">Mazapan, the agent</a></b> (73 s): its gestures, a question, a change allowed, and back ·
+  ▶ <b><a href="docs/media/mazapan-learn.mp4">Learn, and an agent's change</a></b> (56 s)
+</p>
 
 > **A personal project, shared as it is.** Mazapan is one person's desktop,
 > made public in case it helps someone else. It comes with no warranty of
@@ -80,15 +85,15 @@ If it's useful to you too, that's the best that could happen to it.
 
 | | |
 |---|---|
-| 🤖 **Agentic OS** | Every agent's live sessions in the bar · each account's limits · a dashboard of cost and tokens · a built-in MCP server · an approval card with the exact diff · ask from anywhere · diagnosis from crashes, checks and checkpoints |
+| 🤖 **Agentic OS** | Mazapan, the agent: ask by text or voice, changes made with your approval · every agent's live sessions in the bar · each account's limits · a dashboard of cost and tokens · a built-in MCP server · an approval card with the exact diff · ask from anywhere · diagnosis from crashes, checks and checkpoints |
 | 💿 **Install** | Graphical and text installers in 5 languages · full-disk encryption · a recovery key as text and QR · hardware fixes picked for your machine |
 | 🛟 **Updates and safety** | Arch news before updating · automatic rollback when a check fails · checkpoints you boot into from the menu · a signed repository · a firewall that denies everything in |
-| 🪟 **Desktop** | Niri-style scrolling columns · overview of every workspace · command palette · settings · monitors with profiles · notifications and Do Not Disturb · night light · modes · idle and hibernate |
+| 🪟 **Desktop** | A Control Center out of a status pill · Niri-style scrolling columns · overview of every workspace · command palette · settings · monitors with profiles · notifications and Do Not Disturb · night light · modes · idle and hibernate |
 | 🎨 **Look** | One theme for the whole OS (16 targets, GRUB to VS Code) · a live theme picker · a theme from any picture · 7 screensavers |
 | 🧰 **Everyday tools** | Capture with OCR, annotations, QR and recording · clipboard history · emoji and color pickers · offline dictation · reminders · web apps · LocalSend and Taildrop |
 | 👩‍💻 **Developers** | Profiles for Development, .NET, Mobile (Expo) · containers without root · one-click databases · every language's versions with mise |
 | 🎮 **Gaming** | Steam, Heroic, Lutris, gamescope, GameMode, MangoHud · games on the discrete GPU · emulators for 20+ systems |
-| 🧩 **Extensible** | 100 plugins, the bar and the installer included · a Plugins panel · write your own in minutes · every change previewed and undoable |
+| 🧩 **Extensible** | 101 plugins, the bar and the installer included · a Plugins panel · write your own in minutes · every change previewed and undoable |
 
 ## Agentic OS
 
@@ -108,6 +113,19 @@ it lets them change things the way a person does, never behind your back.
   </tr>
 </table>
 <p align="center"><sub>Sample accounts and data; the answer shown is a sample too.</sub></p>
+
+### Mazapan, the agent
+- **`SUPER + SHIFT + A`**, `? …` in the palette, or **ask by voice**: a card
+  with Mazapan, the icon's mazapan as a pixel-art character whose gestures
+  say what it's doing (listening, thinking, preparing a change, your turn,
+  done, turned down, only reading…).
+- **Ask for a change** ("put a dark theme with a green accent") and it makes
+  it through Mazapan, after Mazapan's own card shows you the diff and you
+  allow it; Undo takes it back. Ask why something failed and it reads
+  Mazapan's logs.
+- **Only your own words act**: about a capture, a notification or the
+  selected text it only answers. The conversation goes on in the card, by
+  typing or by voice. ▶ [See it in 73 s](docs/media/mazapan-agent.mp4).
 
 ### Sees your agents
 - **Live sessions in the bar** for Claude Code, Codex, opencode and pi: which
@@ -140,7 +158,8 @@ it lets them change things the way a person does, never behind your back.
 - **Ask from anywhere**: `?` in the palette, about a screenshot, the
   selected text, files (right click in Files), or **by voice**. The answer
   comes in a card; "Continue in a terminal" picks the conversation up.
-  Asked read-only, in an empty folder, with no keys.
+  About something from elsewhere it's asked read-only, in an empty folder,
+  with no keys.
 - **Diagnosis built in**: an app crashes, a health check fails, or a
   checkpoint was needed, and "Ask an agent" hands over `mazapan report`
   (state, failing checks, recent errors, what changed since the
@@ -196,7 +215,7 @@ Hyprland underneath, Niri's ideas on top (the `columns` and
   at its own width; the others never resize. The view follows the focus.
 - **Widths that cycle** (`SUPER + R`: a third, a half, two thirds, all of it), grow and
   shrink (`SUPER + ALT + ← →`), **maximize the column** (`SUPER + F`), and
-  **stack two windows in one column** or take one out (`SUPER + [ ]`).
+  **stack two windows in one column** or take one out (`SUPER + CTRL + ← →`).
 - **Columns that move** (`SUPER + SHIFT + ← →`), workspaces one after
   another (`SUPER + Page Up/Down`), touchpad **gestures** to scroll the strip
   and change workspace.
@@ -290,9 +309,16 @@ TOML, JSON, CSS, shell…), filled from the theme and your settings.
 - **Write one in minutes**: `mazapan plugins new my-widget --kind bar`, then
   `plugins dev` (applied again on every save) and `plugins check`; `plugins
   fork` copies a built-in one to change it.
-- **Installed with consent**: `mazapan plugins add <git-url>` shows what a
+- **The community's, in their own repositories**: the
+  [plugin registry](https://github.com/singularengine/mazapan-plugins)
+  lists them by tag and commit, and [mazapan.dev/plugins](https://mazapan.dev/plugins/)
+  shows them (Markets, Pomodoro…). Yours goes in with a pull request; new
+  versions are picked up from your tags: [publishing a plugin](docs/publishing-plugins.md),
+  step by step.
+- **Installed with consent**: `mazapan plugins add <id|git-url>` shows what a
   plugin will be able to do (files, commands, root, packages) before
-  anything runs; `plugins.lock` brings the same set to another machine.
+  anything runs, and installs exactly the commit the registry looked at;
+  `plugins.lock` brings the same set to another machine.
 - **Safe to experiment**: Mazapan never overwrites a file it didn't write
   or one you edited; every apply is previewed (`--dry-run --diff`) and
   undoable (`mazapan undo`, or History).
@@ -300,7 +326,7 @@ TOML, JSON, CSS, shell…), filled from the theme and your settings.
   one that fails rolls the update back.
 
 <details>
-<summary><b>All 100 built-in plugins</b>, by what they're for</summary>
+<summary><b>All 101 built-in plugins</b>, by what they're for</summary>
 
 **Agents**
 
@@ -309,6 +335,7 @@ TOML, JSON, CSS, shell…), filled from the theme and your settings.
 **Shell and bar**
 
 - **Bar** (`shell-bar`): A bar on every monitor (Quickshell), filled with the widgets other plugins put in its left/center/right slots
+- **Control Center** (`control-center`): One panel for what was a row of icons on the bar's right
 - **Workspaces** (`bar-workspaces`): Workspace numbers in the bar, with a live preview on hover whose windows can be dragged out, and an overview of every workspace at once (as Niri's)
 - **Window title** (`bar-window-title`): The focused window's title in the bar, next to the workspaces
 - **Clock** (`bar-clock`): Day, date and time in the middle of the bar, in the system's language
@@ -406,6 +433,7 @@ TOML, JSON, CSS, shell…), filled from the theme and your settings.
 
 **Hardware fixes (on the machines that need them)**
 
+- **AMD Strix and Krackan Point laptop screen that keeps updating** (`hw-amd-strix-psr`): The screen of laptops on AMD Ryzen AI 300 (Strix and Krackan Point: the ASUS Zenbook S 16 and others) no longer freezes on its last frame, the mouse and keyboard seemingly dead
 - **Wi-Fi passwords on Macs with Broadcom Wi-Fi** (`hw-apple-brcmfmac-wpa`): Macs whose Broadcom Wi-Fi runs on the brcmfmac driver (2015 on, T2 Macs too) join WPA2/WPA3 networks that otherwise turn the right password down
 - **Function keys first on Apple keyboards** (`hw-apple-fnkeys`): F1–F12 as function keys, media keys with Fn, on keyboards the hid_apple driver runs
 - **MacBook NVMe waking from sleep** (`hw-apple-nvme-suspend`): Keeps the NVMe drive of the 2015-2017 MacBook and MacBook Pro out of its deepest power state (D3cold), which it fails to wake from after sleep
@@ -436,12 +464,12 @@ Each with its full description: [docs/plugins.md](docs/plugins.md).
 
 </details>
 
-How to write one: [docs/plugin-api.md](docs/plugin-api.md).
+How to write one: [docs/plugin-api.md](docs/plugin-api.md); how to publish it for everyone: [docs/publishing-plugins.md](docs/publishing-plugins.md).
 
 ## Every feature
 
 Arch owns the critical parts (kernel, packages, updates); Mazapan is the
-layer on top, written as 100 plugins over one small core, `mazapan`, a single
+layer on top, written as 101 plugins over one small core, `mazapan`, a single
 native binary. Every change it makes, yours or an agent's, is previewed,
 written only where it may, and undoable.
 
@@ -471,6 +499,10 @@ written only where it may, and undoable.
 - **Columns tiling** borrowed from Niri: a scrolling strip per workspace,
   widths that cycle, touchpad gestures, and an **overview** of every
   workspace (`SUPER + Tab`).
+- A **Control Center** (`SUPER + A`) grown out of a status pill that says
+  when something needs you: Wi-Fi and Bluetooth with their lists in place,
+  Do Not Disturb, night light, keep awake, power saver, the sound and where
+  it goes, the music, your agents, updates and notifications.
 - A **command palette** (`SUPER + Space`) for apps, windows and every
   plugin's actions, each showing the command it runs.
 - **Settings** (`SUPER + ,`), monitors with live thumbnails and profiles
@@ -532,10 +564,12 @@ mazapan apply --theme phosphor   # write it; mazapan undo takes it back
 |---|---|
 | [docs/development.md](docs/development.md) | The `mazapan` command, the repository, the dev VM, each part of the desktop in detail |
 | [docs/plugin-api.md](docs/plugin-api.md) | Writing a plugin: targets, templates, settings, health checks |
+| [docs/publishing-plugins.md](docs/publishing-plugins.md) | Publishing a plugin: your repository, the registry, new versions |
 | [docs/agent-api.md](docs/agent-api.md) | Agents and MCP |
 | [docs/first-install.md](docs/first-install.md) | The first install on real hardware |
 | [docs/security.md](docs/security.md) | What's protected, and what isn't |
 | [docs/roadmap.md](docs/roadmap.md) | Where it's going |
+| [docs/history.md](docs/history.md) | How each part was decided, built and audited |
 
 ## Contributing
 
@@ -549,6 +583,6 @@ problems go privately, as [SECURITY.md](SECURITY.md) says.
 ## License
 
 [MIT](LICENSE). What Mazapan learned from others, and their notices, is in
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md); among them Omarchy, whose
-hardware fixes the `hw-*` plugins carry. The name "Mazapan" and its icon
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), including the source of
+the hardware fixes the `hw-*` plugins carry. The name "Mazapan" and its icon
 aren't covered by the license: a fork is welcome under another name.

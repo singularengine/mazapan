@@ -26,7 +26,24 @@ public sealed partial class Plugin
         public List<string> Categories = [];
         /// <summary>Optional: off until turned on, as hardware plugins are (the extras: a screensaver, reminders…).</summary>
         public bool Optional;
+        /// <summary>Who made it, where it lives (https) and its license: what the plugin gallery shows.</summary>
+        public string Author = "", Homepage = "", License = "";
     }
+
+    /// <summary>
+    /// Gallery: how the plugin looks, for the plugin gallery (mazapan.dev/plugins)
+    /// and the catalog: an icon and screenshots, files of the plugin.
+    /// </summary>
+    public sealed class GalleryTable
+    {
+        public string Icon = "";
+        public List<string> Screenshots = [];
+    }
+
+    public GalleryTable Gallery { get; } = new();
+
+    /// <summary>The kinds of picture the gallery takes: an icon may also be SVG.</summary>
+    public static readonly string[] PictureTypes = [".png", ".jpg", ".jpeg", ".webp"];
 
     /// <summary>Off until turned on (enabled_plugins), rather than on until turned off (disabled_plugins).</summary>
     public bool OffByDefault => Hardware != null || Meta.Optional;
@@ -312,6 +329,12 @@ public sealed partial class Plugin
         p.Meta.Requires = meta.Strings("requires");
         p.Meta.Categories = meta.Strings("categories");
         p.Meta.Optional = meta.Bool("optional");
+        p.Meta.Author = meta.String("author");
+        p.Meta.Homepage = meta.String("homepage");
+        p.Meta.License = meta.String("license");
+        var gallery = r.Sub("gallery");
+        p.Gallery.Icon = gallery.String("icon");
+        p.Gallery.Screenshots = gallery.Strings("screenshots");
         foreach (var c in p.Meta.Categories)
             if (!Install.CatalogIndex.KnownCategories.Contains(c))
                 throw new MazapanException($"{path}: [plugin] category \"{c}\": one of {string.Join(", ", Install.CatalogIndex.KnownCategories)}");
@@ -370,6 +393,7 @@ public sealed partial class Plugin
                 Glyph = a.String("glyph"),
                 Label = a.String("label"),
                 Confirm = a.Bool("confirm"),
+                Setting = a.Bool("setting"),
                 KeySetting = KeyFromSetting().Match(a.String("key")) is { Success: true } km ? km.Groups[1].Value : "",
             });
         var cov = r.Sub("coverage");
@@ -404,6 +428,18 @@ public sealed partial class Plugin
         return p;
     }
 
+    /// <summary>A gallery picture: a file of the plugin (never a path out of its folder), of a kind the gallery shows.</summary>
+    void GalleryFile(string path, string key, string file, string[] types)
+    {
+        if (file.StartsWith('/') || file.StartsWith('.') || file.Split('/').Any(x => x is "" or "." or "..") || file.Contains('\\'))
+            throw new MazapanException($"{path}: [gallery] {key} \"{file}\": a file in the plugin's folder (media/shot.png)");
+        if (!types.Contains(Path.GetExtension(file).ToLowerInvariant()))
+            throw new MazapanException($"{path}: [gallery] {key} \"{file}\": one of {string.Join(", ", types)}");
+        var full = Paths.Join(Dir, file);
+        if (!File.Exists(full) || new FileInfo(full).LinkTarget != null)
+            throw new MazapanException($"{path}: [gallery] {key}: open {full}: no such file");
+    }
+
     void Validate(string path)
     {
         if (Meta.Id == "") throw new MazapanException($"{path}: [plugin] id is required");
@@ -419,6 +455,15 @@ public sealed partial class Plugin
         {
             throw new MazapanException($"{path}: [plugin] {e.Message}");
         }
+        if (Meta.Homepage != "" && !(Uri.TryCreate(Meta.Homepage, UriKind.Absolute, out var home_) && home_.Scheme == "https" && home_.Host != ""))
+            throw new MazapanException($"{path}: [plugin] homepage \"{Meta.Homepage}\": an https:// address");
+        foreach (var (key, value) in new[] { ("author", Meta.Author), ("license", Meta.License) })
+            if (value.Length > 100 || value.Any(char.IsControl))
+                throw new MazapanException($"{path}: [plugin] {key}: one line, up to 100 characters");
+        if (Gallery.Icon != "") GalleryFile(path, "icon", Gallery.Icon, [.. PictureTypes, ".svg"]);
+        if (Gallery.Screenshots.Count > 8)
+            throw new MazapanException($"{path}: [gallery] screenshots: up to 8");
+        foreach (var s in Gallery.Screenshots) GalleryFile(path, "screenshots", s, PictureTypes);
         foreach (var req in Meta.Requires)
         {
             Requirement r;
@@ -609,6 +654,8 @@ public sealed class Action
     public string Label = "";
     /// <summary>Confirm: done only when asked twice (power off, reboot): one stray ↵ doesn't.</summary>
     public bool Confirm;
+    /// <summary>Setting: a setting more than a thing to do (a switch, a Settings page): the palette lists it under Settings.</summary>
+    public bool Setting;
     /// <summary>
     /// KeySetting: the setting the key comes from (key = "{{ settings.X }}"),
     /// so Settings › Keys can change it; "" for a key that's fixed.

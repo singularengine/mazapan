@@ -27,7 +27,7 @@ mkdir -p "$work"/{pkg,repo} "$out"
 
 # MAZAPAN_REPO_SERVER and MAZAPAN_KEYS reach the packages (a test
 # repository and its key, in the VMs): see pkg/PKGBUILD.
-# Every package of Mazapán's own: pkg/PKGBUILD, and each pkg/*/PKGBUILD.
+# Every package of Mazapan's own: pkg/PKGBUILD, and each pkg/*/PKGBUILD.
 for p in mazapan $(cd "$repo/pkg" && ls -d */ | tr -d / | while read -r d; do [[ -f $d/PKGBUILD ]] && echo "$d"; done); do
   log "$p package"
   d="$work/pkg/$p"
@@ -88,7 +88,12 @@ cp "$conf" "$p/pacman.conf"
 mkdir -p "$p/airootfs/var/cache/mazapan"
 cp -a "$offline" "$p/airootfs/var/cache/mazapan/offline"
 
+# Its name says what it is: mazapan-VERSION-YYYY.MM.DD-x86_64.iso, the
+# version Mazapan's own (pkg/version, the git tag: docs/versioning.md), the
+# date the day its Arch packages were taken.
+version=$("$repo/pkg/version")
 sed -i -e 's/^iso_name=.*/iso_name="mazapan"/' \
+  -e "s/^iso_version=.*/iso_version=\"$version-\$(date --date=\"@\${SOURCE_DATE_EPOCH:-\$(date +%s)}\" +%Y.%m.%d)\"/" \
   -e 's/^iso_label=.*/iso_label="MAZAPAN_$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y%m)"/' \
   -e 's/^iso_publisher=.*/iso_publisher="mazapan"/' \
   -e 's/^iso_application=.*/iso_application="mazapan live and installer"/' "$p/profiledef.sh"
@@ -110,6 +115,13 @@ sed -i 's/Arch Linux install medium/mazapan/' "$p"/efiboot/loader/entries/*.conf
 # and the install then run out of it (the install stalls).
 sed -i 's/archisosearchuuid=%ARCHISO_UUID%/& copytoram=n/' "$p"/efiboot/loader/entries/*.conf "$p"/syslinux/*.cfg "$p"/grub/*.cfg
 grep -q 'copytoram=n' "$p"/efiboot/loader/entries/*.conf || die "the boot entries changed: copytoram=n wasn't added"
+# amdgpu's Panel Self Refresh off, in every entry: some AMD OLED laptops
+# (the Zenbook S 16: plugins/hw-amd-strix-psr) freeze on their first
+# frame with it, and nobody should have to know that to start the ISO.
+# Elsewhere it costs the live session a little battery; desktops and
+# Intel or NVIDIA laptops don't use it at all.
+sed -i 's/archisosearchuuid=%ARCHISO_UUID%/& amdgpu.dcdebugmask=0x600/' "$p"/efiboot/loader/entries/*.conf "$p"/syslinux/*.cfg "$p"/grub/*.cfg
+grep -q 'amdgpu.dcdebugmask=0x600' "$p"/efiboot/loader/entries/*.conf || die "the boot entries changed: amdgpu.dcdebugmask wasn't added"
 # Safe graphics, for laptops whose NVIDIA card the ISO's drivers don't
 # handle yet: NVIDIA's drivers kept out, so the desktop starts on the
 # integrated GPU (with the GPU switch on Hybrid); if it can't start at all,

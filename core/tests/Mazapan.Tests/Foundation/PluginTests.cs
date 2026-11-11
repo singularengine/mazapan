@@ -158,6 +158,79 @@ public class PluginTests
         Assert.Equal(Directory.GetDirectories(Path.Join(Repo.Root, "plugins")).Count(d => File.Exists(Path.Join(d, "plugin.toml"))), all.Count);
     }
 
+    const string Head = "[plugin]\nid = \"mine\"\nname = \"Mine\"\nversion = \"1.0.0\"\napi = 1\n";
+
+    [Fact]
+    public void WhatTheGalleryShowsIsRead()
+    {
+        using var d = new TempDir();
+        d.Write("media/icon.svg", "<svg/>");
+        d.Write("media/panel.png", "png");
+        d.Write("plugin.toml", Head + "author = \"Ana\"\nhomepage = \"https://example.com/mine\"\nlicense = \"MIT\"\n"
+            + "[gallery]\nicon = \"media/icon.svg\"\nscreenshots = [\"media/panel.png\"]\n");
+        var p = Plugin.Load(d.Path);
+        Assert.Equal(("Ana", "https://example.com/mine", "MIT"), (p.Meta.Author, p.Meta.Homepage, p.Meta.License));
+        Assert.Equal("media/icon.svg", p.Gallery.Icon);
+        Assert.Equal(["media/panel.png"], p.Gallery.Screenshots);
+        // None of it is needed.
+        d.Write("plugin.toml", Head);
+        Assert.Equal("", Plugin.Load(d.Path).Gallery.Icon);
+    }
+
+    [Theory]
+    [InlineData("[plugin]\nhomepage = \"http://example.com\"", "https://")]
+    [InlineData("[plugin]\nhomepage = \"javascript:alert(1)\"", "https://")]
+    [InlineData("[plugin]\nauthor = \"a\\nb\"", "one line")]
+    [InlineData("[gallery]\nicon = \"../icon.svg\"", "in the plugin's folder")]
+    [InlineData("[gallery]\nicon = \"/etc/passwd.png\"", "in the plugin's folder")]
+    [InlineData("[gallery]\nicon = \"media//icon.svg\"", "in the plugin's folder")]
+    [InlineData("[gallery]\nicon = \"media/icon.gif\"", "one of")]
+    [InlineData("[gallery]\nscreenshots = [\"media/icon.svg\"]", "one of")]
+    [InlineData("[gallery]\nscreenshots = [\"media/missing.png\"]", "no such file")]
+    [InlineData("[gallery]\nscreenshots = [\"media/link.png\"]", "no such file")]
+    [InlineData("[gallery]\nbanner = \"media/icon.svg\"", "gallery.banner")]
+    public void ABadGalleryIsRefused(string extra, string says)
+    {
+        using var d = new TempDir();
+        d.Write("media/icon.svg", "<svg/>");
+        d.Write("media/icon.gif", "gif");
+        File.CreateSymbolicLink(Path.Join(d.Path, "media/link.png"), "/etc/hostname");
+        // [plugin] keys go in its table; [gallery] is a table of its own.
+        var toml = extra.StartsWith("[plugin]") ? Head + extra["[plugin]\n".Length..] + "\n" : Head + extra + "\n";
+        d.Write("plugin.toml", toml);
+        var e = Assert.Throws<MazapanException>(() => Plugin.Load(d.Path));
+        Assert.Contains(says, e.Message);
+    }
+
+    [Fact]
+    public void UpToEightScreenshots()
+    {
+        using var d = new TempDir();
+        for (var i = 0; i < 9; i++) d.Write($"s{i}.png", "png");
+        d.Write("plugin.toml", Head + "[gallery]\nscreenshots = [" + string.Join(", ", Enumerable.Range(0, 9).Select(i => $"\"s{i}.png\"")) + "]\n");
+        Assert.Contains("up to 8", Assert.Throws<MazapanException>(() => Plugin.Load(d.Path)).Message);
+    }
+
+    [Fact]
+    public void APluginCantTakeABuiltInKey()
+    {
+        // Installed next to every built-in: a key of theirs would fire both
+        // (plugins check, which the plugin registry runs, refuses it).
+        var (all, _) = Plugin.Discover([Path.Join(Repo.Root, "plugins")]);
+        using var d = new TempDir();
+        var palette = all.First(p => p.Id == "palette").Settings["key"];
+        d.Write("plugin.toml", "[plugin]\nid = \"mine\"\nname = \"Mine\"\nversion = \"1.0.0\"\napi = 1\n[settings]\nkey = \"" + palette + "\"\nother_key = \"SUPER + ALT + F12\"\n");
+        var clash = Assert.Single(Mazapan.Cli.Program.KeyClashes(Plugin.Load(d.Path), all));
+        Assert.Contains("palette.key", clash.Who);
+        // Written in another order and case, the same key.
+        var parts = ((string)palette).Split('+', StringSplitOptions.TrimEntries).Reverse().Select(x => x.ToLowerInvariant());
+        d.Write("plugin.toml", "[plugin]\nid = \"mine\"\nname = \"Mine\"\nversion = \"1.0.0\"\napi = 1\n[settings]\nkey = \"" + string.Join(" + ", parts) + "\"\n");
+        Assert.Single(Mazapan.Cli.Program.KeyClashes(Plugin.Load(d.Path), all));
+        // Built-ins among themselves: hardware ones aside, none shares one.
+        foreach (var p in all.Where(p => p.Hardware == null))
+            Assert.DoesNotContain(Mazapan.Cli.Program.KeyClashes(p, all.Where(x => x.Hardware == null)), c => !c.Who.StartsWith(p.Id + "."));
+    }
+
     [Fact]
     public void BuiltInPluginsHaveTheirNameInSpanish()
     {

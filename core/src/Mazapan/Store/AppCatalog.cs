@@ -12,6 +12,8 @@ namespace Mazapan.Store;
 public sealed class App
 {
     public string Id = "", Name = "", Description = "", Category = "", Desktop = "";
+    /// <summary>A program without a launcher (lazygit, gh): what a terminal runs to open it.</summary>
+    public string Command = "";
     public List<string> Pacman = [];
     public string Flatpak = "", Webapp = "", Plugin = "";
     /// <summary>From its maker (jetbrains:RD, vscode:stable): see Vendor.</summary>
@@ -74,7 +76,7 @@ public static partial class AppCatalog
     public static bool IsWebapp(string s) => s.StartsWith("https://") && s.Length > 8 && !s.Any(c => char.IsWhiteSpace(c) || char.IsControl(c) || c == '\\');
 
     public static readonly string[] Categories =
-        ["internet", "communication", "office", "development", "graphics", "video", "audio", "games", "utilities", "finance"];
+        ["internet", "communication", "office", "development", "agents", "graphics", "video", "audio", "games", "utilities", "finance"];
 
     public static (List<Profile> Profiles, List<App> Apps) Load(string path)
     {
@@ -83,7 +85,7 @@ public static partial class AppCatalog
     }
 
     /// <summary>
-    /// Mazapán's catalog, then others' (config.toml: app_catalogs = [URL or
+    /// Mazapan's catalog, then others' (config.toml: app_catalogs = [URL or
     /// path, …]), as plugin catalogs are added. An id already there stays
     /// the first one's; another catalog's profile can be made of any app
     /// known by then, but only mazapan's has the basic one. A catalog that
@@ -126,6 +128,7 @@ public static partial class AppCatalog
                 Description = t.String("description"),
                 Category = t.String("category"),
                 Desktop = t.String("desktop"),
+                Command = t.String("command"),
                 Pacman = t.Strings("pacman"),
                 Flatpak = t.String("flatpak"),
                 Webapp = t.String("webapp"),
@@ -152,6 +155,8 @@ public static partial class AppCatalog
             if (a.Plugin != "" && !Mazapan.Plugins.Plugin.IdPattern().IsMatch(a.Plugin)) throw new MazapanException($"{from}: {a.Id}: plugin \"{a.Plugin}\"");
             if (a.Plugins.FirstOrDefault(p => !Mazapan.Plugins.Plugin.IdPattern().IsMatch(p)) is { } badp) throw new MazapanException($"{from}: {a.Id}: plugins: \"{badp}\"");
             if (a.Desktop != "" && !DesktopPattern().IsMatch(a.Desktop)) throw new MazapanException($"{from}: {a.Id}: desktop \"{a.Desktop}\"");
+            // One program's name: it goes into a shell command.
+            if (a.Command != "" && !PackagePattern().IsMatch(a.Command)) throw new MazapanException($"{from}: {a.Id}: command \"{a.Command}\": a program's name");
             if (apps.Any(x => x.Id == a.Id)) throw new MazapanException($"{from}: app {a.Id} twice");
             apps.Add(a);
         }

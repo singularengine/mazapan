@@ -18,9 +18,9 @@ public static partial class Program
                  run every plugin's checks now
           history        past updates and how they went
           channel [stable|edge]
-                         where Mazapán's own updates come from: stable, or every
+                         where Mazapan's own updates come from: stable, or every
                          release first (edge); without one, which it is
-          version        this Mazapán's version
+          version        this Mazapan's version
           password       change your password everywhere it is: the disk's (when
                          it's encrypted), the account's, the keyring's
           timeline [--json]
@@ -175,7 +175,10 @@ public static partial class Program
     }
 
     /// <summary>Search paths: the user's directory first, so it can shadow built-ins.</summary>
-    static string[] PluginDirs() => [Install.Git.Dir, Paths.Join(Root(), "plugins")];
+    static string[] PluginDirs() => [Install.Git.Dir, .. ShippedPluginDirs()];
+
+    /// <summary>The plugins mazapan ships (plugins/); the community's come from their own repositories (the plugin registry).</summary>
+    static string[] ShippedPluginDirs() => [Paths.Join(Root(), "plugins")];
 
     static string[] ThemeDirs() => [Paths.ExpandHome("~/.local/share/mazapan/themes"), Paths.Join(Root(), "themes")];
 }

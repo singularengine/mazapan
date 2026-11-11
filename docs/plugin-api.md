@@ -1,6 +1,6 @@
 # Plugin API v1
 
-Everything Mazapán does is a plugin, built-ins included: they use exactly
+Everything Mazapan does is a plugin, built-ins included: they use exactly
 the API described here. If something can't be expressed with it, the API
 grows; built-ins never get a private path.
 
@@ -56,7 +56,7 @@ without a terminal there is no other yes).
 
 `~/.config/mazapan/plugins.lock` keeps, for each one, its source, the branch
 or tag it follows, the exact commit, and what you approved. With
-config.toml, it's all another machine needs: `mazapan plugins sync && Mazapán
+config.toml, it's all another machine needs: `mazapan plugins sync && Mazapan
 apply`.
 
 `update` looks at the new version beside the installed one, shows its
@@ -67,7 +67,7 @@ with any file edited or added (even ignored ones: every `*.tmpl` in the
 folder is parsed), needing more than was approved, or a checkout the lock
 doesn't list. git runs without your git config or hooks.
 
-No plugin writes into Mazapán's own folders (`~/.config/mazapan`,
+No plugin writes into Mazapan's own folders (`~/.config/mazapan`,
 `~/.local/share/mazapan` but its `bin/`, `~/.local/state/mazapan`); outputs
 start with `~/` or `/` and never go up with `..`. Approving "full access"
 is trusting its author, like any extension: that code runs with your
@@ -80,8 +80,20 @@ Your own plugins (a folder you put there, not a git checkout, or a link
 
 A catalog lists plugins one can add: only where each lives and what it is.
 Adding one is still `plugins add`, with what it can do shown and approved.
-Mazapán ships one (`catalog/index.toml`); config.toml adds others, paths or
-https URLs (fetched at most once a day, `--refresh` to fetch now):
+
+Mazapan's own is the **plugin registry**'s
+([singularengine/mazapan-plugins](https://github.com/singularengine/mazapan-plugins)),
+served at `https://mazapan.dev/plugins/index.toml`: the plugins others made,
+each in its own repository, listed by tag and the commit the registry
+looked at, everything else read from the plugin's plugin.toml at that
+commit. The same list is the gallery at [mazapan.dev/plugins](https://mazapan.dev/plugins/).
+A copy ships with Mazapan (`catalog/index.toml`, `catalog/refresh` before a
+release), read only when the registry has never been reached;
+`MAZAPAN_PLUGIN_CATALOG` puts another catalog in the registry's place (a
+mirror, a test).
+
+config.toml adds others, paths or https URLs (fetched at most once a day,
+`--refresh` to fetch now; the last good copy when they can't be reached):
 
 ```toml
 catalogs = ["https://example.com/mazapan/index.toml"]
@@ -95,16 +107,26 @@ description = "How long the machine has been up, in the bar"
 author = "Ana"
 source = "https://github.com/ana/mazapan-uptime"
 ref = "v1.3"                     # tag or branch; none: the default branch
+commit = "4f1c…"                 # optional: exactly this commit (the full id)
+version = "1.3.0"                # optional, shown before it's fetched
+license = "MIT"
 categories = ["bar"]             # bar, panel, theme, window, hardware, tools, agent
 homepage = "https://…"
 translations.es.description = "Cuánto tiempo lleva encendido el equipo, en la barra"
 ```
 
+With `commit`, that commit is what gets installed (and shown first), even
+if the tag has moved since: what a catalog's maintainers looked at is what
+you get. Keys a catalog has that this Mazapan doesn't know are left alone
+(a catalog is read by older Mazapans too), and so are categories it
+doesn't know.
+
 An id in two catalogs is the first one's. A plugin installed from a catalog
-entry (`plugins add ID`) follows its `ref`: when the catalog moves it
-(`v1.3` to `v1.4`), `plugins update` goes there, still asking before
-anything new, and never to a lower version. A ref you pick yourself
-(`plugins update ID#REF`) ends that.
+entry (`plugins add ID`) follows it: when the catalog lists another version
+(another `ref`, or another `commit`), `plugins update` goes there, and the
+Updates panel says there's one; still asking before anything new, and never
+to a lower version. A ref you pick yourself (`plugins update ID#REF`) ends
+that.
 
 ```sh
 mazapan plugins catalog [--json]    # every plugin: built in, yours, installed, available
@@ -136,6 +158,13 @@ requires = ["shell-bar", "hypr-base >= 0.1"]   # other plugins it needs
 categories = ["theme"]     # bar, panel, theme, window, hardware, tools, agent
 optional = false           # true: off until turned on (an extra, not everyone's);
                            # its packages are installed then, not with mazapan
+author = "Ana"             # who made it, where it lives (https) and its license:
+homepage = "https://…"     # the Plugins panel and the plugin gallery say them
+license = "MIT"
+
+[gallery]                  # how it looks, for the plugin gallery (mazapan.dev/plugins)
+icon = "media/icon.svg"    # SVG, PNG, JPEG or WebP, in the plugin's folder
+screenshots = ["media/panel.webp"]   # PNG, JPEG or WebP, up to 8
 
 [packages]
 pacman = ["foot"]          # checked on apply, warned about if missing
@@ -143,7 +172,7 @@ pacman_nvidia = []         # only where there's such a GPU (also pacman_amd,
                            # pacman_intel): a game's 32-bit driver, say
 
 [settings]                 # knobs with their defaults (string, int, float, bool)
-key = "SUPER + equal"
+key = "SUPER + W"
 auto = false
 
 [[targets]]                # zero or more files to generate
@@ -158,7 +187,7 @@ version, numbers and dots. A plugin that doesn't load is listed as broken
 and blocks apply (unless disabled), but never the other commands.
 
 `requires` lists plugins this one needs, with an optional version (`>=`,
-`>`, `=`, `<=`, `<`; `1.2` is `1.2.0`). Mazapán refuses to apply while an
+`>`, `=`, `<=`, `<`; `1.2` is `1.2.0`). Mazapan refuses to apply while an
 enabled plugin needs one that is missing, disabled or at a version that
 doesn't do; `enable` and `disable` say what else they'd need to take along.
 A bar widget requires `shell-bar`; a Hyprland fragment, `hypr-base`.
@@ -227,7 +256,7 @@ before the first sudo (`-y` to skip the question; without a terminal it's
 required). Then, in order: packages (a driver before the files that load
 it), checks marked `before_system = true` (kernel headers before a module
 built from them), files, and their reloads — also those of files it
-removes, and of files undo puts back, which Mazapán remembers. `mazapan undo`
+removes, and of files undo puts back, which Mazapan remembers. `mazapan undo`
 takes it all back: system files as they were, packages it installed
 uninstalled unless something else needs them by now.
 
@@ -294,6 +323,7 @@ home = 4                       # on the first screen, in this order (0: not)
 glyph = "󰸌"                    # its icon there (a Nerd Font glyph)
 label = "{{ t \"home\" }}"     # its name there, short ("Theme"); default: name
 confirm = true                 # done only on a second ↵ (power off, reboot)
+setting = true                 # a setting (a switch, a Settings page): under Settings
 ```
 
 A `key` written as one of the plugin's settings (`key = "{{ settings.key }}"`)
@@ -353,6 +383,38 @@ else, including a `[plugins.<id>]` section for a plugin that doesn't exist,
 stops `apply` with an error naming the section. `mazapan plugins` prints each
 plugin's effective settings and marks the ones set in config.toml.
 
+### Settings read live
+
+A setting written into a QML template (`{{ settings.focus_minutes }}`)
+changes that file, so changing it reloads the whole shell: every panel,
+the bar, what was open. For settings people tune often, write them to a
+file of their own, with no `reload`, and read it live; only that file
+changes, and nothing reloads:
+
+```toml
+[[targets]]
+template = "settings.json.tmpl"          # {{ json settings }}
+output = "~/.config/quickshell/mazapan/components/pomodoro/settings.json"
+```
+
+```qml
+readonly property var settings: Object.assign({ focus_minutes: 25 }, stored)
+property var stored: ({})
+FileView {
+  path: Quickshell.shellPath("components/pomodoro/settings.json")
+  blockLoading: true
+  watchChanges: true
+  printErrors: false
+  onFileChanged: reload()
+  onLoaded: { try { root.stored = JSON.parse(text()) } catch (e) {} }
+}
+```
+
+The defaults in the QML hold until the file is read (and if it isn't
+there). Keys bound in Hyprland and settings that change what's built
+(which files there are) still go in the templates. The Pomodoro plugin
+([mazapan-pomodoro](https://github.com/rick-dev-creator/mazapan-pomodoro)) does it this way.
+
 ## Localization
 
 Plugins never hardcode user-facing text in their templates. It lives in
@@ -405,8 +467,8 @@ That gives three guarantees:
   at the head of the file, missing ones go on top: an `@import`); `json`
   (the template's leaves in a JSON object; one that doesn't parse is a
   conflict, never rewritten). `prefs` and `lines` are the person's own
-  files: taking one of Mazapán's lines out is an edit (a conflict, not put
-  back), and Mazapán's lines leave with the plugin (or when a newer version
+  files: taking one of Mazapan's lines out is an edit (a conflict, not put
+  back), and Mazapan's lines leave with the plugin (or when a newer version
   stops writing them).
 - **In every place.** `each = ["~/.config/mozilla/firefox/*/prefs.js"]`
   writes the target into every directory holding a file those patterns
@@ -448,7 +510,7 @@ what it runs (see `theme-gtk`). A function can take parameters:
 `{{ func roles(role) }}…{{ end }}`, called as `{{ roles "fg" }}`.
 
 Each template gets 10 seconds, then the render fails: a plugin from git
-whose template loops forever can't hang Mazapán. A template gets the data
+whose template loops forever can't hang Mazapan. A template gets the data
 made anew: what it changes (an item of `actions`, say) no other template,
 plugin or command sees. A template is a `*.tmpl` file in the plugin's own
 folder, never a path out of it. Scriban's functions are all there but those
@@ -471,6 +533,7 @@ What templates see:
 | `settings`     | the plugin's settings, defaults merged with config.toml |
 | `lang`         | the language, as a POSIX locale name: `es_MX`, `en` |
 | `lang_code`    | just the language: `es`, `en`                   |
+| `plugin_dir`   | the plugin's folder, for files it ships as they are (pictures, animations): `file://{{ plugin_dir }}/media/x.webp` |
 | `actions`      | every plugin's actions, rendered: `plugin`, `name`, and `run`, `key`, `terminal`, `keywords` when set |
 | `place`        | for a target with `each`: the folder this copy goes into |
 
@@ -593,12 +656,66 @@ back), `mazapan widgets` lists them; `notifications setMode NAME QUIET
 | `Slider`   | `value`, `to`, `step`, `moved(real)`                           |
 | `ListRow`  | a row in a list: `glyph`, `title`, `detail`, `trailing`, `active`, `clicked(mouse)` |
 | `Button`   | `text`, `primary`, `clicked`                                   |
-| `TextField`| `text`, `placeholder`, `echoMode`, `accepted`, `focusInput()`  |
+| `TextField`| `text`, `placeholder`, `echoMode`, `accepted`, `focusInput()`; `revealable` (an eye that shows a password), `takesEscape` + `escaped` |
+| `PasswordPrompt` | a password asked in place: `label`, `actionText`, `cancelText`, `busyText`, `busy`, `error`, `minLength`, `start()`, `submitted(password)`, `cancelled` |
+| `Tile`     | a big switch for the Control Center: `glyph`, `title`, `detail`, `checked`, `more` (an arrow that opens what's behind it), `expanded`, `toggled`, `opened` |
+| `Group`    | a group of controls (a Control Center section): `title`, `trailing` (a word at its right), `trailingClicked`, what's put in it stacked |
 
 They all take their colors, font and shape from the theme. A
 `TextField`'s own `Keys` (`Keys.onPressed` on it) see a key before the
 text does: what they accept (the arrows of a list, Delete for an entry,
 Esc) never reaches the text; the rest is typed.
+
+### Online
+
+What fetches from the internet (a forecast, prices, a check for updates)
+follows `Online`, a singleton `shell-bar` ships beside `Theme` (`import qs`):
+`Online.online` says whether the internet is there (NetworkManager's own
+check, so a Wi-Fi joined but not yet through isn't), and its `back()` signal
+comes each time it returns after being gone. Fetch again then, rather than
+waiting for the next turn of a timer:
+
+```qml
+Connections {
+  target: Online
+  function onBack() { root.refresh() }
+}
+```
+
+A fetch that failed while `Online.online` is true is worth trying again in
+a minute or so; while it's false, `back()` will say when.
+
+### The Control Center
+
+The `control-center` plugin replaces the icons on the bar's right with a
+status pill that opens one panel. A plugin puts its part in it as it puts a
+widget in the bar, with a target:
+
+| Folder | What it is |
+|---|---|
+| `~/.config/quickshell/mazapan/control/now/NN-<name>.qml` | a card under *Now*, only while something needs the person: an agent waiting, a recording, an update |
+| `~/.config/quickshell/mazapan/control/tiles/NN-<name>.qml` | a switch, two to a row (a `Tile`) |
+| `~/.config/quickshell/mazapan/control/sections/NN-<name>.qml` | a section as wide as the panel (a `Group`) |
+
+Each is a root Item. Optional properties: `shown` (false: left out),
+`pillGlyph` (shown in the pill while nothing needs the person: "󰕾 65%").
+A *now* card also has `live` (shown, and said by the pill, while true),
+`pill` (what the pill says then: "Recording 0:42") and `level` (0 news,
+1 needs the person, 2 urgent: the pill's color, and which one it says). What
+a tile's arrow opens (its networks, its devices) goes below the switches:
+`ControlService.detail = aComponent` (null closes it; one at a time), so the
+tile never moves under the pointer. `ControlService.close()` (`import "../../components/control"`)
+closes the panel after an action.
+
+Two parts of the same name in one folder: the one with the higher `NN`
+takes the other's place. A plugin replaces one of the Control Center's own
+that way, without touching it: `control/sections/31-media.qml` shows
+instead of its `30-media.qml`, and with that plugin off, the original is
+back.
+
+A bar widget whose file name (without `NN-` and `.qml`) is the same as a
+part's leaves the bar while the Control Center is on: `widgets/right/30-volume.qml`
+and `control/sections/20-volume.qml`. With it off, the widgets are back.
 
 ## Writing a plugin
 
@@ -631,7 +748,19 @@ the built-in's place; `plugins diff ID` shows what you changed, and deleting
 the copy goes back. `fork ID NEW` copies any plugin under a new id, to start
 from.
 
-To share it: a git repository with plugin.toml at its root, tagged, and an
-entry in a catalog (a pull request to Mazapán's `catalog/index.toml`, or
-your own catalog file).
+`check` also says what the plugin gallery needs of a plugin others can
+add (an author, a license, an icon, screenshots: up to 256 KB for the icon,
+2 MB a screenshot), and fails when one of the plugin's keys is one a
+built-in plugin uses: both would fire. `--json` says it all as JSON, with
+what the plugin says it is (the registry reads it).
+
+To share it: a public git repository with plugin.toml, a README.md and a
+LICENSE at its root, a tag for each version (`vX.Y.Z`, the version in
+plugin.toml), and a pull request listing it in the
+[plugin registry](https://github.com/singularengine/mazapan-plugins).
+The registry checks it at that commit, a person looks at what it can do,
+and from then on new tags are listed by themselves (those that would be
+able to do more, after a person looks again). Or keep a catalog file of
+your own. [publishing-plugins.md](publishing-plugins.md) is the whole way,
+step by step.
 
