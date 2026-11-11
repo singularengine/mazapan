@@ -22,6 +22,10 @@ release (a tag `vX.Y.Z`) names them.
   pacman doesn't know: pacman asked on the terminal whether to import it
   while Mazapan only looked at which packages are missing. It isn't
   asked now; the apply goes on, and the update says what's wrong.
+- The check that the shell is the session's polkit agent failed where
+  the locale isn't UTF-8 (the gate's session, a `mazapan doctor` run
+  over SSH): Quickshell 0.3.2 writes its warning about it to the same
+  output as the answer. The answer is read on its own line now.
 - Mazapan lives at [singularengine/mazapan](https://github.com/singularengine/mazapan)
   now, with its plugin registry
   ([singularengine/mazapan-plugins](https://github.com/singularengine/mazapan-plugins))
