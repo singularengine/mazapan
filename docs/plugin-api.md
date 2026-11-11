@@ -82,7 +82,7 @@ A catalog lists plugins one can add: only where each lives and what it is.
 Adding one is still `plugins add`, with what it can do shown and approved.
 
 Mazapan's own is the **plugin registry**'s
-([rick-dev-creator/mazapan-plugins](https://github.com/rick-dev-creator/mazapan-plugins)),
+([singularengine/mazapan-plugins](https://github.com/singularengine/mazapan-plugins)),
 served at `https://mazapan.dev/plugins/index.toml`: the plugins others made,
 each in its own repository, listed by tag and the commit the registry
 looked at, everything else read from the plugin's plugin.toml at that
@@ -757,7 +757,7 @@ what the plugin says it is (the registry reads it).
 To share it: a public git repository with plugin.toml, a README.md and a
 LICENSE at its root, a tag for each version (`vX.Y.Z`, the version in
 plugin.toml), and a pull request listing it in the
-[plugin registry](https://github.com/rick-dev-creator/mazapan-plugins).
+[plugin registry](https://github.com/singularengine/mazapan-plugins).
 The registry checks it at that commit, a person looks at what it can do,
 and from then on new tags are listed by themselves (those that would be
 able to do more, after a person looks again). Or keep a catalog file of

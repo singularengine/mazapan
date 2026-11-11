@@ -31,7 +31,7 @@ your repository                    the registry                         everyone
 
 Your plugin's code always stays in **your** repository: its issues, its
 releases, its README are yours. The registry,
-[rick-dev-creator/mazapan-plugins](https://github.com/rick-dev-creator/mazapan-plugins),
+[singularengine/mazapan-plugins](https://github.com/singularengine/mazapan-plugins),
 only says where it lives and which version is listed: a tag, and that
 tag's exact commit. What the registry looked at is exactly what people
 install, even if the tag is moved later.
@@ -170,7 +170,7 @@ on:
   workflow_dispatch:
 jobs:
   check:
-    uses: rick-dev-creator/mazapan-plugins/.github/workflows/check-plugin.yml@main
+    uses: singularengine/mazapan-plugins/.github/workflows/check-plugin.yml@main
 ```
 
 It builds Mazapan from source, runs `plugins check`, and on a version tag,
@@ -200,7 +200,7 @@ my-plugin`, mazapan.dev/plugins.
 
 ## 6. List it in the registry
 
-1. Fork [rick-dev-creator/mazapan-plugins](https://github.com/rick-dev-creator/mazapan-plugins).
+1. Fork [singularengine/mazapan-plugins](https://github.com/singularengine/mazapan-plugins).
 2. Add your entry to `plugins.toml`, in order by id:
 
    ```toml

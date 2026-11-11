@@ -3,10 +3,10 @@
 # with Mazapan, read only when mazapan.dev/plugins/index.toml can't be (never
 # reached, nothing cached). Brought up to date before each release.
 #
-#   catalog/refresh     from github.com/rick-dev-creator/mazapan-plugins
+#   catalog/refresh     from github.com/singularengine/mazapan-plugins
 set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
-url=https://raw.githubusercontent.com/rick-dev-creator/mazapan-plugins/main/generated/index.toml
+url=https://raw.githubusercontent.com/singularengine/mazapan-plugins/main/generated/index.toml
 tmp="$(mktemp)"
 trap 'rm -f "$tmp"' EXIT
 curl -fsSL "$url" -o "$tmp"

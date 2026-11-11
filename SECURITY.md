@@ -4,7 +4,7 @@
 
 Please **don't open a public issue** for a security problem. Report it
 privately instead, through GitHub:
-[**Report a vulnerability**](https://github.com/rick-dev-creator/mazapan/security/advisories/new)
+[**Report a vulnerability**](https://github.com/singularengine/mazapan/security/advisories/new)
 (the repository's Security tab).
 
 Say what's affected, how to see it happen, and what someone could do with

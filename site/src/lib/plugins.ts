@@ -59,7 +59,7 @@ export const needs = since
   : "Coming with the next Mazapan release (after 0.3.2): until then, Mazapan built from main.";
 
 /** The guide to publishing one, step by step. */
-export const guide = "https://github.com/rick-dev-creator/mazapan/blob/main/docs/publishing-plugins.md";
+export const guide = "https://github.com/singularengine/mazapan/blob/main/docs/publishing-plugins.md";
 /** Newest first: what changed lately leads. */
 export const plugins: Plugin[] = [...(registry.plugins as Plugin[])].sort((a, b) => b.updated.localeCompare(a.updated) || a.name.localeCompare(b.name));
 
