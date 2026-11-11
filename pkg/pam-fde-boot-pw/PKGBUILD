@@ -9,7 +9,7 @@
 pkgname=pam-fde-boot-pw
 _commit=49bf498fd8d13f73e4a24221818a8a5d2af20088
 pkgver=0.r20250214
-pkgrel=1
+pkgrel=2
 pkgdesc="The disk encryption password from the kernel keyring into the PAM session (gnome-keyring)"
 arch=(x86_64)
 url="https://git.sr.ht/~kennylevinsen/pam_fde_boot_pw"

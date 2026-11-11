@@ -6,6 +6,17 @@ release (a tag `vX.Y.Z`) names them.
 
 ## 0.5.2 (2026-11-11)
 
+- A new release key: Mazapan's packages and ISOs are signed by
+  `B999 B535 645B 54C0 B659 ADBE 8E5A 7E23 52C9 2A1B` from 0.5.2 on. The
+  one before it was lost, and with it the way to bring a new one in by
+  itself, so a system installed before 0.5.2 takes it once, by hand,
+  then updates as before:
+
+  ```sh
+  curl -fsSLO https://raw.githubusercontent.com/singularengine/mazapan/main/pkg/keys/mazapan.gpg
+  sudo pacman-key --add mazapan.gpg
+  sudo pacman-key --lsign-key B999B535645B54C0B659ADBE8E5A7E2352C92A1B
+  ```
 - Mazapan lives at [singularengine/mazapan](https://github.com/singularengine/mazapan)
   now, with its plugin registry
   ([singularengine/mazapan-plugins](https://github.com/singularengine/mazapan-plugins))
